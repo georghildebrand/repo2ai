@@ -10,25 +10,16 @@ A minimal Python CLI tool that exports Git repository contents to structured Mar
 - **Multiple Output Options**: File, clipboard, or stdout (combinable)
 - **Configurable Filtering**: Custom ignore patterns, file size limits, meta file handling
 - **Cross-Platform**: Works on Windows, macOS, and Linux
-- **Zero Dependencies**: Only uses Python stdlib + optional `pyperclip` for clipboard functionality
+- **Minimal Dependencies**: Only uses Python stdlib + `pyperclip` for clipboard functionality
 
 ## Installation
 
-Currently only building form source is supported. No install from pypi atm!
 ### From Source
 
 ```bash
 git clone https://github.com/georghildebrand/Repo2Markdown.git
 cd Repo2Markdown
-poetry install
-```
-
-or via pip:
-
-Build and install the wheel!
-
-```bash
- install-wheel
+make install
 ```
 
 ### Development Setup
@@ -37,8 +28,13 @@ Build and install the wheel!
 make dev-setup
 
 # Or manually
-poetry install
+poetry install --with dev
 poetry shell
+```
+
+### Build and Install Wheel
+```bash
+make install-wheel
 ```
 
 ## Quick Start
@@ -166,29 +162,34 @@ def main():
 
 ## Development
 
-This project uses Poetry for dependency management:
+This project uses **Poetry** for dependency management and **Make** for build automation:
+
+### Quick Development Commands
 
 ```bash
-# Install dependencies
-poetry install
+# Setup development environment
+make dev-setup              # Install deps + setup pre-commit hooks
 
-# Run tests
-make test              # Run all tests
-make test-cov          # Run tests with coverage
+# Daily development
+make install                 # Install/update dependencies
+make format                  # Format code with Black
+make lint                    # Run flake8 + mypy
+make test                    # Run tests
+make test-cov                # Run tests with coverage
 
-# Code quality
-make format            # Format code with Black
-make lint              # Run flake8 + mypy
-make all-checks        # Run format-check + lint + test
+# Quality assurance
+make all-checks              # Run format-check + lint + test
+make ci-local                # Full CI pipeline simulation
 
-# Build and package
-make build             # Build wheel + source dist
-make clean             # Clean build artifacts
+# Building and packaging
+make build                   # Build wheel + source dist
+make install-wheel           # Build and install wheel locally
+make clean                   # Clean build artifacts
 
-# Local testing
-make run               # Run tool on current directory
-make run-example       # Generate example_output.md
-make ci-local          # Run full CI pipeline locally
+# Tool execution
+make run                     # Run tool on current directory
+make run-example             # Generate example_output.md
+make run-help                # Show CLI help
 ```
 
 ### Testing Commands
@@ -198,12 +199,28 @@ make ci-local          # Run full CI pipeline locally
 poetry run pytest tests/test_core.py -v
 poetry run pytest tests/test_cli.py -v
 
-# Test with coverage
-poetry run pytest --cov=src/repo_to_markdown --cov-report=html
+# Test with coverage and HTML report
+make test-cov
 
 # Integration testing
-poetry run repo2md . --output test.md
+make run-example
 poetry run repo2md --help
+```
+
+### Code Quality
+
+```bash
+# Check formatting (without changing files)
+make format-check
+
+# Format code
+make format
+
+# Run linting
+make lint
+
+# Run all quality checks
+make all-checks
 ```
 
 ## Supported Languages
@@ -267,7 +284,8 @@ make docs
 
 - **Python 3.11+** (uses modern type hints)
 - **Git** (for repository scanning)
-- **pyperclip** (for clipboard functionality - only dependency)
+- **Poetry** (for dependency management)
+- **pyperclip** (for clipboard functionality - automatically installed)
 
 ## Performance
 
@@ -297,9 +315,9 @@ repo2md . --ignore ".git/*"
 **"Pyperclip not available" error:**
 ```bash
 # Install clipboard support
-poetry install
+make install
 # or
-pip install pyperclip
+poetry install --with dev
 ```
 
 **Large output files:**
@@ -308,54 +326,79 @@ pip install pyperclip
 repo2md . --exclude-meta-files --max-file-size 50000 --ignore "*.log" --ignore "dist/*"
 ```
 
-**Permission errors:**
+**Development environment issues:**
 ```bash
-# Check file permissions
-ls -la output-file.md
+# Reset development environment
+make clean
+make dev-setup
 
-# Use different output directory
-repo2md . --output ~/Documents/repo-export.md
+# Check dependencies
+poetry check
+poetry show --tree
 ```
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes with tests
-4. Run quality checks: `make all-checks`
-5. Commit your changes: `git commit -m 'Add amazing feature'`
-6. Push to the branch: `git push origin feature/amazing-feature`
-7. Submit a pull request
+3. Set up development environment: `make dev-setup`
+4. Make your changes with tests
+5. Run quality checks: `make all-checks`
+6. Commit your changes: `git commit -m 'Add amazing feature'`
+7. Push to the branch: `git push origin feature/amazing-feature`
+8. Submit a pull request
 
 ### Development Workflow
 
-The project uses GitHub Actions for CI/CD:
+The project uses **Makefile-based workflows** for both local development and CI/CD:
 
-- **CI Pipeline**: Runs on every push and PR
-  - Tests on Python 3.8-3.12
-  - Code formatting and linting checks
+- **Local Development**: All commands use `make` targets for consistency
+- **GitHub Actions**: CI workflows use the same `make` targets
+- **No Discrepancy**: What runs locally is exactly what runs in CI
+
+#### CI/CD Pipeline
+
+- **CI Pipeline** (`make ci-local`): Runs on every push and PR
+  - Tests on Python 3.11 and 3.12
+  - Code formatting and linting checks (`make all-checks`)
   - Cross-platform integration tests (Ubuntu, Windows, macOS)
   - Security scanning with safety and bandit
-  - Architecture diagram rendering
+  - Coverage reporting
 
-- **Documentation**: Auto-updates on doc changes
-  - Renders PlantUML diagrams to PNG
+- **Documentation** (`make docs`): Auto-updates on doc changes
+  - Renders PlantUML diagrams to PNG (`make render-diagrams`)
   - Validates markdown links
-  - Generates API documentation
+  - Workflow validation (`make validate-workflows`)
 
 - **Release Pipeline**: Triggered on version tags
   - Publishes to PyPI automatically
   - Creates GitHub releases with changelog
-  - Includes rendered architecture diagrams
+  - Includes build artifacts
 
-### Local Development Commands
+### Available Make Targets
 
 ```bash
-make all             # Run complete pipeline (format, lint, test, docs, build)
-make ci-local        # Run full CI simulation locally
-make validate-workflows # Validate GitHub Actions syntax
-make render-diagrams # Render architecture diagrams
-make docs           # Generate all documentation
+make help                    # Show all available commands
+make install                 # Install dependencies
+make install-dev             # Development installation
+make install-wheel           # Build and install wheel
+make test                    # Run tests
+make test-cov                # Run tests with coverage
+make lint                    # Run linting (flake8 + mypy)
+make format                  # Format code with Black
+make format-check            # Check formatting without changes
+make all-checks              # Run format-check + lint + test
+make clean                   # Clean build artifacts
+make build                   # Build package
+make run                     # Run CLI on current directory
+make run-help                # Show CLI help
+make run-example             # Generate example output
+make dev-setup               # Set up development environment
+make render-diagrams         # Render PlantUML diagrams
+make docs                    # Generate all documentation
+make validate-workflows      # Validate GitHub Actions
+make ci-local                # Run complete CI pipeline locally
+make all                     # Run everything (format, lint, test, docs, build)
 ```
 
 ## License
@@ -372,11 +415,13 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Changelog
 
 ### v0.1.0 (Current)
-- Initial release
+- Initial release with Poetry-based dependency management
 - Core repository scanning functionality
 - Markdown export with syntax highlighting
 - Multiple output options (file, clipboard, stdout)
 - Smart filtering with .gitignore integration
-- Cross-platform support
-- Comprehensive test suite
-- Architecture documentation
+- Cross-platform support (Windows, macOS, Linux)
+- Comprehensive test suite with coverage reporting
+- Makefile-based development workflow
+- GitHub Actions CI/CD pipeline
+- Architecture documentation with C4 diagrams
