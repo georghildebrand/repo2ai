@@ -405,13 +405,6 @@ make all                     # Run everything (format, lint, test, docs, build)
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## Related Projects
-
-- [GitHub's repository export tools](https://docs.github.com/en/repositories)
-- [Tree command](https://tree.mama.indstate.edu/) for directory visualization
-- [Sourcegraph](https://sourcegraph.com/) for code search and navigation
-- [DocToc](https://github.com/thlorenz/doctoc) for table of contents generation
-
 ## Changelog
 
 ### v0.1.0 (Current)

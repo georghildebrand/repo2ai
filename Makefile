@@ -5,7 +5,7 @@ help:  ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 install:  ## Install dependencies
-	poetry install
+	poetry install --with dev
 
 install-wheel:  ## Build and install wheel package
 	poetry build
@@ -58,16 +58,16 @@ build:  ## Build package
 	poetry build
 
 run:  ## Run the CLI tool on current directory
-	poetry run repo-to-md .
+	poetry run repo2md .
 
 run-help:  ## Show CLI help
-	poetry run repo-to-md --help
+	poetry run repo2md --help
 
 run-example:  ## Run example with output to file
-	poetry run repo-to-md . --output example_output.md
+	poetry run repo2md . --output example_output.md
 
 dev-setup:  ## Set up development environment
-	poetry install
+	poetry install --with dev
 	poetry run pre-commit install || echo "pre-commit not configured"
 
 all-checks:  ## Run all checks (format, lint, test)
@@ -94,8 +94,8 @@ validate-workflows:  ## Validate GitHub Actions workflows
 		actionlint .github/workflows/*.yml; \
 		echo "✓ Workflows validated"; \
 	else \
-		echo "⚠ actionlint not found. Install with: brew install actionlint"; \
-		echo "  Alternative: Use GitHub Actions tab to validate on push"; \
+		echo "⚠ actionlint not found. Skipping workflow validation."; \
+		echo "  Install with: curl -L https://github.com/rhymond/actionlint/releases/download/v1.6.27/actionlint_1.6.27_linux_amd64.tar.gz | tar -xz && sudo mv actionlint /usr/local/bin/"; \
 	fi
 
 ci-local:  ## Run CI checks locally (simulate GitHub Actions)
