@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "repo-to-markdown"
+version = "0.1.0"
+description = "Export Git repository contents to structured Markdown"
+authors = [
+    {name = "Georg Hildebrand"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = [
+    "pyperclip>=1.8.0",
+    "mypy (>=1.16.1,<2.0.0)",
+    "pytest (>=8.4.1,<9.0.0)"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=22.0",
+    "flake8>=4.0"
+]
+
+[project.scripts]
+repo-to-md = "repo_to_markdown.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/georghildebrand/Repo2Markdown"
+Repository = "https://github.com/georghildebrand/Repo2Markdown"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 180
+target-version = ['py38']
+[tool.poetry.group.dev.dependencies]
+types-pyperclip = "^1.9.0.20250218"
+

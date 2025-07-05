@@ -1,0 +1,60 @@
+@startuml C4_Level2_RepoToMarkdown
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container Diagram - Repo-to-Markdown Internal Architecture
+
+Person(developer, "Developer", "Nutzer des CLI-Tools")
+
+System_Boundary(repoToMd, "Repo-to-Markdown System") {
+    Container(cli, "CLI Module", "Python argparse", "Kommandozeilen-Interface und Parameter-Parsing")
+    Container(core, "Core Module", "Python stdlib", "Repository-Scanning, Filterung und Markdown-Generierung")
+    Container(output, "Output Module", "Python + pyperclip", "Ausgabe-Handling für File/Clipboard/Stdout")
+}
+
+System_Ext(gitRepo, "Git Repository", "Lokales Git-Repository")
+System_Ext(fileSystem, "File System", "Lokales Dateisystem")
+System_Ext(clipboard, "System Clipboard", "Systemzwischenablage")
+
+' User interactions
+Rel(developer, cli, "Führt Kommandos aus", "CLI")
+
+' Internal component relationships
+Rel(cli, core, "Übergibt Parameter und startet Verarbeitung", "Function call")
+Rel(core, output, "Übergibt generierten Markdown", "Function call")
+
+' External system interactions
+Rel(core, gitRepo, "Liest Repository-Struktur", "subprocess git + os.walk")
+Rel(core, fileSystem, "Liest Dateiinhalte und .gitignore", "File I/O")
+Rel(output, fileSystem, "Schreibt Markdown-Datei", "File I/O")
+Rel(output, clipboard, "Kopiert Text", "pyperclip")
+Rel(output, developer, "Stdout-Ausgabe", "print()")
+
+note right of core
+  **Core-Funktionen:**
+  • Repository-Scanning (os.walk)
+  • Git-Integration (subprocess)
+  • .gitignore-Parsing (fnmatch)
+  • Datei-Filterung
+  • Markdown-Generierung
+  • Syntax-Detection
+end note
+
+note left of cli
+  **CLI-Parameter:**
+  • --output <path>
+  • --clipboard
+  • --stdout
+  • --ignore <patterns>
+  • --exclude-meta-files
+  • --max-file-size <size>
+end note
+
+note bottom of output
+  **Output-Optionen:**
+  • File (standard)
+  • Clipboard (pyperclip)
+  • Stdout (pipes)
+  • Kombinierbar
+end note
+
+@enduml

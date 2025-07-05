@@ -1,0 +1,30 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^http://localhost"
+    },
+    {
+      "pattern": "^https://localhost"
+    }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "{{BASEURL}}/"
+    }
+  ],
+  "httpHeaders": [
+    {
+      "urls": ["https://github.com"],
+      "headers": {
+        "Accept": "text/html",
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:96.0) Gecko/20100101 Firefox/96.0"
+      }
+    }
+  ],
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s",
+  "aliveStatusCodes": [200, 206, 999]
+}

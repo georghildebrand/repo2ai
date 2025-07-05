@@ -1,0 +1,134 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'src/**/*.py'  # Update docs when code changes
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+
+jobs:
+  render-diagrams:
+    name: Render and Deploy Architecture Diagrams
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Java (for PlantUML)
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+    
+    - name: Install PlantUML
+      run: |
+        wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+        echo 'java -jar plantuml.jar "$@"' > plantuml
+        chmod +x plantuml
+        sudo mv plantuml /usr/local/bin/
+        sudo mv plantuml.jar /usr/local/bin/
+    
+    - name: Create images directory
+      run: mkdir -p docs/images
+    
+    - name: Render PlantUML diagrams
+      run: |
+        plantuml -tpng docs/architecture/c4/*.puml -o ../../../docs/images/
+        ls -la docs/images/
+    
+    - name: Check for changes
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit rendered diagrams
+      if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/images/*.png
+        git commit -m "docs: update rendered architecture diagrams" || exit 0
+        git push
+    
+    - name: Upload diagram artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: rendered-diagrams
+        path: docs/images/*.png
+
+  validate-links:
+    name: Validate Documentation Links
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check Markdown links
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-verbose-mode: 'yes'
+        config-file: '.github/markdown-link-check.json'
+        
+  lint-markdown:
+    name: Lint Markdown Files
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Lint Markdown files
+      uses: DavidAnson/markdownlint-cli2-action@v13
+      with:
+        globs: |
+          README.md
+          docs/**/*.md
+    
+  api-docs:
+    name: Generate API Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Install dependencies
+      run: |
+        poetry install --no-interaction
+        poetry add --group dev pydoc-markdown
+    
+    - name: Generate API documentation
+      run: |
+        mkdir -p docs/api
+        poetry run python -m pydoc src.repo_to_markdown.core > docs/api/core.md || true
+        poetry run python -m pydoc src.repo_to_markdown.cli > docs/api/cli.md || true
+        poetry run python -m pydoc src.repo_to_markdown.output > docs/api/output.md || true
+    
+    - name: Upload API docs
+      uses: actions/upload-artifact@v3
+      with:
+        name: api-documentation
+        path: docs/api/*.md

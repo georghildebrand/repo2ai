@@ -1,0 +1,57 @@
+@startuml C4_Level1_RepoToMarkdown
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title System Context Diagram - Repo-to-Markdown Tool
+
+Person(developer, "Developer", "Entwickler der das Repository dokumentieren möchte")
+
+System_Boundary(repoToMd, "Repo-to-Markdown System") {
+    System(repoToMdApp, "Repo-to-Markdown CLI", "Python-Anwendung die Repository-Inhalte in Markdown exportiert")
+}
+
+System_Ext(gitRepo, "Git Repository", "Lokales oder Remote Git-Repository mit Projektdateien")
+System_Ext(fileSystem, "File System", "Lokales Dateisystem für Ausgabe und Konfiguration")
+System_Ext(configFiles, "Config Files", "Konfigurationsdateien (.repoignore, .gitignore, settings.yaml)")
+System_Ext(clipboard, "System Clipboard", "Systemzwischenablage für direktes Kopieren")
+
+Rel(developer, repoToMdApp, "Führt CLI-Kommandos aus", "CLI")
+Rel(repoToMdApp, gitRepo, "Liest Repository-Inhalte", "Git/File I/O")
+Rel(repoToMdApp, fileSystem, "Schreibt Markdown-Datei", "File I/O")
+Rel(repoToMdApp, configFiles, "Liest Konfiguration und Ignore-Patterns", "File I/O")
+Rel(repoToMdApp, clipboard, "Kopiert Output in Zwischenablage", "System API")
+Rel(repoToMdApp, developer, "Stdout/Stderr Ausgabe", "Terminal")
+
+note right of repoToMdApp
+  **Hauptfunktionen:**
+  - Repository-Scanning
+  - Intelligente Datei-Filterung
+  - Markdown-Export
+  - CLI-Interface
+  - Flexible Output-Optionen
+  - Clipboard-Integration
+end note
+
+note left of gitRepo
+  **Unterstützte Repositories:**
+  - Lokale Git-Repos
+  - Verschiedene Programmiersprachen
+  - Beliebige Dateistrukturen
+end note
+
+note bottom of configFiles
+  **Konfigurationsmöglichkeiten:**
+  - .repoignore (custom patterns)
+  - .gitignore (Git-Integration)
+  - settings.yaml (globale Einstellungen)
+  - CLI-Parameter (Override)
+end note
+
+note top of clipboard
+  **Output-Optionen:**
+  - Datei schreiben (--output)
+  - Clipboard kopieren (--clipboard)
+  - Stdout ausgeben (--stdout)
+  - Kombinierbar
+end note
+
+@enduml

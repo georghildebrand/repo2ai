@@ -1,0 +1,89 @@
+@startuml C4_Level3_RepoToMarkdown
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram - Core Module Internal Structure
+
+Person(developer, "Developer", "User of the CLI tool")
+
+System_Boundary(repoToMd, "Repo-to-Markdown System") {
+    Container_Boundary(cli, "CLI Module") {
+        Component(argparser, "Argument Parser", "argparse", "Parses command line arguments")
+        Component(validator, "Argument Validator", "Python", "Validates input parameters")
+        Component(processor, "Pattern Processor", "Python", "Processes ignore patterns")
+    }
+    
+    Container_Boundary(core, "Core Module") {
+        Component(scanner, "Repository Scanner", "os.walk + subprocess", "Scans repository structure")
+        Component(filter, "File Filter", "fnmatch", "Filters files based on patterns")
+        Component(detector, "Language Detector", "Path analysis", "Detects programming languages")
+        Component(generator, "Markdown Generator", "string templating", "Generates structured markdown")
+        Component(gitignore, "Gitignore Parser", "file parsing", "Parses .gitignore patterns")
+        Component(binary, "Binary Detector", "byte analysis", "Detects binary files")
+    }
+    
+    Container_Boundary(output, "Output Module") {
+        Component(filewriter, "File Writer", "pathlib", "Writes markdown to files")
+        Component(clipboard, "Clipboard Handler", "pyperclip", "Copies to system clipboard")
+        Component(stdout, "Stdout Handler", "sys.stdout", "Outputs to terminal")
+    }
+}
+
+System_Ext(gitRepo, "Git Repository", "Local Git repository")
+System_Ext(fileSystem, "File System", "Local file system")
+System_Ext(systemClipboard, "System Clipboard", "OS clipboard")
+
+' CLI internal relationships
+Rel(argparser, validator, "Validates parsed args")
+Rel(validator, processor, "Processes patterns")
+
+' CLI to Core
+Rel(processor, scanner, "Initiates scan with parameters")
+Rel(scanner, filter, "Filters discovered files")
+Rel(filter, detector, "Detects language for files")
+Rel(detector, generator, "Generates markdown")
+
+' Core internal relationships
+Rel(scanner, gitignore, "Reads .gitignore patterns")
+Rel(scanner, binary, "Checks if file is binary")
+Rel(filter, gitignore, "Uses parsed patterns")
+
+' Core to Output
+Rel(generator, filewriter, "Writes markdown content")
+Rel(generator, clipboard, "Copies markdown content")
+Rel(generator, stdout, "Outputs markdown content")
+
+' External interactions
+Rel(scanner, gitRepo, "git ls-files", "subprocess")
+Rel(scanner, fileSystem, "Reads file contents", "File I/O")
+Rel(gitignore, fileSystem, "Reads .gitignore", "File I/O")
+Rel(filewriter, fileSystem, "Writes output file", "File I/O")
+Rel(clipboard, systemClipboard, "System API call", "pyperclip")
+
+note right of scanner
+  **Scanning Process:**
+  1. Get Git tracked files
+  2. Walk directory structure
+  3. Apply ignore patterns
+  4. Check file sizes
+  5. Detect binary files
+  6. Read file contents
+end note
+
+note bottom of filter
+  **Filtering Rules:**
+  • .gitignore patterns
+  • Custom ignore patterns
+  • Binary file exclusion
+  • File size limits
+  • Meta file handling
+end note
+
+note left of detector
+  **Language Detection:**
+  • File extension mapping
+  • Special file names
+  • 25+ supported languages
+  • Fallback to generic
+end note
+
+@enduml
