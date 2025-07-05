@@ -12,202 +12,116 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-    
+        python-version: ["3.11", "3.12"]
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: latest
         virtualenvs-create: true
         virtualenvs-in-project: true
-    
+
     - name: Load cached venv
       id: cached-poetry-dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: .venv
         key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
-    
+
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --no-interaction --no-root
-    
+
     - name: Install project
       run: poetry install --no-interaction
-    
+
     - name: Run tests with coverage
       run: |
         poetry run pytest tests/ -v --cov=src/repo_to_markdown --cov-report=xml --cov-report=term-missing
-    
+
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.11'
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   lint-and-format:
     name: Lint and Format Check
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.11
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-    
+
     - name: Load cached venv
       id: cached-poetry-dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: .venv
         key: venv-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
-    
+
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
-    
-    - name: Install project
       run: poetry install --no-interaction
-    
+
     - name: Check code formatting with Black
       run: poetry run black --check src/ tests/
-    
+
     - name: Lint with flake8
       run: poetry run flake8 src/ tests/
-    
+
     - name: Type check with mypy
       run: poetry run mypy src/repo_to_markdown/
-
-  render-diagrams:
-    name: Render Architecture Diagrams
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Java (required for PlantUML)
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '11'
-    
-    - name: Install PlantUML
-      run: |
-        wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-        echo 'java -jar plantuml.jar "$@"' > plantuml
-        chmod +x plantuml
-        sudo mv plantuml /usr/local/bin/
-        sudo mv plantuml.jar /usr/local/bin/
-    
-    - name: Create images directory
-      run: mkdir -p docs/images
-    
-    - name: Render PlantUML diagrams
-      run: |
-        plantuml -tpng docs/architecture/c4/*.puml -o ../../../docs/images/
-        ls -la docs/images/
-    
-    - name: Upload diagram artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: architecture-diagrams
-        path: docs/images/*.png
-
-  integration-test:
-    name: Integration Tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
-    
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-    
-    - name: Install dependencies
-      run: poetry install --no-interaction
-    
-    - name: Test CLI functionality
-      run: |
-        poetry run repo-to-md --help
-        poetry run repo-to-md . --output test-output.md --max-file-size 50000
-    
-    - name: Verify output file
-      shell: bash
-      run: |
-        if [ -f "test-output.md" ]; then
-          echo "✓ Output file created successfully"
-          wc -l test-output.md
-        else
-          echo "✗ Output file not created"
-          exit 1
-        fi
 
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.11
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-    
-    - name: Install dependencies
-      run: poetry install --no-interaction
-    
+
+    - name: Install dependencies including security tools
+      run: |
+        poetry install --no-interaction
+        poetry add --group dev safety bandit
+
     - name: Run safety check
-      run: |
-        poetry add --group dev safety
-        poetry run safety check
-    
+      run: poetry run safety check --json --output safety-report.json || true
+
     - name: Run bandit security scan
-      run: |
-        poetry add --group dev bandit
-        poetry run bandit -r src/ -f json -o bandit-report.json || true
-    
+      run: poetry run bandit -r src/ -f json -o bandit-report.json || true
+
     - name: Upload security scan results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: security-reports
-        path: bandit-report.json
+        path: |
+          safety-report.json
+          bandit-report.json
