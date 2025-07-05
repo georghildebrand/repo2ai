@@ -78,11 +78,16 @@ all-checks:  ## Run all checks (format, lint, test)
 render-diagrams:  ## Render PlantUML diagrams to PNG
 	@echo "Rendering PlantUML diagrams..."
 	@if command -v plantuml >/dev/null 2>&1; then \
-		plantuml -tpng docs/architecture/c4/*.puml -o ../../../docs/images/; \
+		mkdir -p docs/images; \
+		plantuml -tpng docs/architecture/c4/*.puml -o docs/images/; \
 		echo "✓ Diagrams rendered to docs/images/"; \
+	elif [ -f plantuml.jar ]; then \
+		mkdir -p docs/images; \
+		java -jar plantuml.jar -tpng docs/architecture/c4/*.puml -o docs/images/; \
+		echo "✓ Diagrams rendered to docs/images/ using JAR"; \
 	else \
 		echo "⚠ PlantUML not found. Install with: brew install plantuml (macOS) or apt-get install plantuml (Ubuntu)"; \
-		echo "  Alternative: Use online PlantUML server or VS Code PlantUML extension"; \
+		echo "  Alternative: Download plantuml.jar and run: java -jar plantuml.jar -tpng docs/architecture/c4/*.puml -o docs/images/"; \
 	fi
 
 docs:  ## Generate all documentation

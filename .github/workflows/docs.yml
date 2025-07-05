@@ -15,7 +15,7 @@ on:
 
 jobs:
   render-diagrams:
-    name: Render and Deploy Architecture Diagrams
+    name: Render Architecture Diagrams
     runs-on: ubuntu-latest
 
     steps:
@@ -32,17 +32,13 @@ jobs:
     - name: Install PlantUML
       run: |
         wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-        echo 'java -jar plantuml.jar "$@"' > plantuml
-        chmod +x plantuml
-        sudo mv plantuml /usr/local/bin/
-        sudo mv plantuml.jar /usr/local/bin/
 
     - name: Create images directory
       run: mkdir -p docs/images
 
     - name: Render PlantUML diagrams
       run: |
-        plantuml -tpng docs/architecture/c4/*.puml -o ../../../docs/images/
+        java -jar plantuml.jar -tpng docs/architecture/c4/*.puml -o docs/images/
         ls -la docs/images/
 
     - name: Check for changes
@@ -81,3 +77,33 @@ jobs:
       with:
         use-verbose-mode: 'yes'
         config-file: '.github/markdown-link-check.json'
+
+  validate-workflows:
+    name: Validate GitHub Actions
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run actionlint
+      uses: raven-actions/actionlint@v1
+      with:
+        files: '.github/workflows/*.yml'
+
+  validate-workflows:
+    name: Validate GitHub Actions
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install actionlint
+      run: |
+        # Download and install actionlint
+        curl -L -o actionlint.tar.gz https://github.com/rhymond/actionlint/releases/download/v1.6.27/actionlint_1.6.27_linux_amd64.tar.gz
+        tar -xzf actionlint.tar.gz
+        sudo mv actionlint /usr/local/bin/
+        rm actionlint.tar.gz
+
+    - name: Validate workflows using Makefile
+      run: make validate-workflows

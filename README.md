@@ -12,6 +12,12 @@ A minimal Python CLI tool that exports Git repository contents to structured Mar
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 - **Minimal Dependencies**: Only uses Python stdlib + `pyperclip` for clipboard functionality
 
+## Todo
+
+[] Make pip package
+[] Cleanup and remove clutter
+[] Scan Todos in code
+
 ## Installation
 
 ### From Source
@@ -158,7 +164,6 @@ Example output structure:
 def main():
     print("Hello World")
 ```
-```
 
 ## Development
 
@@ -256,13 +261,26 @@ The tool follows a clean, modular design based on C4 architecture principles:
 
 ### Architecture Diagrams
 
-The system architecture is documented using C4 diagrams in `docs/architecture/c4/`:
+The system architecture is documented using C4 diagrams:
 
-1. **[System Context](docs/architecture/c4/01-system-context.puml)** - High-level system interactions
-2. **[Container Diagram](docs/architecture/c4/02-container-diagram.puml)** - Internal system structure
-3. **[Component Diagram](docs/architecture/c4/03-component-diagram.puml)** - Detailed component breakdown
+#### System Context Diagram
+![System Context Diagram](docs/images/C4_Level1_RepoToMarkdown.png)
 
-> **Viewing Diagrams**: Use the [PlantUML VS Code extension](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml) or [online PlantUML server](http://www.plantuml.com/plantuml/uml/) to render the diagrams.
+*High-level system interactions showing how developers use the Repo2Markdown CLI tool.*
+
+#### Container Diagram
+![Container Diagram](docs/images/C4_Level2_RepoToMarkdown.png)
+
+*Internal system structure showing the CLI, Core, and Output modules.*
+
+#### Component Diagram
+![Component Diagram](docs/images/C4_Level3_RepoToMarkdown.png)
+
+*Detailed component breakdown of the Core module's internal structure.*
+
+> **📝 Note:** These diagrams are automatically generated from the PlantUML source files in `docs/architecture/c4/` and updated by our CI/CD pipeline.
+>
+> **🔧 Local Rendering:** Use the [PlantUML VS Code extension](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml) or [online PlantUML server](http://www.plantuml.com/plantuml/uml/) to view/edit the source diagrams.
 
 ### Rendering Diagrams Locally
 
@@ -404,6 +422,13 @@ make all                     # Run everything (format, lint, test, docs, build)
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+## Related Projects
+
+- [GitHub's repository export tools](https://docs.github.com/en/repositories)
+- [Tree command](https://en.wikipedia.org/wiki/Tree_(command)) for directory visualization
+- [Sourcegraph](https://sourcegraph.com/) for code search and navigation
+- [DocToc](https://github.com/thlorenz/doctoc) for table of contents generation
 
 ## Changelog
 
