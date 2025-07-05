@@ -7,6 +7,27 @@ help:  ## Show this help message
 install:  ## Install dependencies
 	poetry install
 
+install-wheel:  ## Build and install wheel package
+	poetry build
+	pip install dist/*.whl --force-reinstall
+
+install-dev:  ## Development installation with all dependencies
+	poetry install --with dev
+	poetry shell || true
+
+install-system:  ## Install system-wide (use with caution)
+	pip install . --user
+
+uninstall:  ## Uninstall package
+	pip uninstall repo-to-markdown -y || true
+	pip uninstall repo2md -y || true
+
+test-install:  ## Test installation in clean environment
+	python -m venv test_env
+	test_env/bin/pip install .
+	test_env/bin/repo2md --help
+	rm -rf test_env
+
 test:  ## Run tests
 	poetry run python -m pytest tests/ -v
 
