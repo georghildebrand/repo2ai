@@ -1,127 +1,93 @@
-name: CI/CD Pipeline
+name: Documentation
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'src/**/*.py'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
 
 jobs:
-  test:
-    name: Test on Python ${{ matrix.python-version }}
+  render-diagrams:
+    name: Render Architecture Diagrams
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
+    - name: Setup Java (for PlantUML)
+      uses: actions/setup-java@v4
       with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+        distribution: 'temurin'
+        java-version: '11'
 
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
-
-    - name: Install project
-      run: poetry install --no-interaction
-
-    - name: Run tests with coverage
+    - name: Install PlantUML
       run: |
-        poetry run pytest tests/ -v --cov=src/repo_to_markdown --cov-report=xml --cov-report=term-missing
+        wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+        echo 'java -jar plantuml.jar "$@"' > plantuml
+        chmod +x plantuml
+        sudo mv plantuml /usr/local/bin/
+        sudo mv plantuml.jar /usr/local/bin/
 
-    - name: Upload coverage to Codecov
-      if: matrix.python-version == '3.11'
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        token: ${{ secrets.CODECOV_TOKEN }}
+    - name: Render diagrams using Makefile
+      run: make render-diagrams
 
-  lint-and-format:
-    name: Lint and Format Check
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
-
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction
-
-    - name: Check code formatting with Black
-      run: poetry run black --check src/ tests/
-
-    - name: Lint with flake8
-      run: poetry run flake8 src/ tests/
-
-    - name: Type check with mypy
-      run: poetry run mypy src/repo_to_markdown/
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-
-    - name: Install dependencies including security tools
+    - name: Check for changes
+      id: verify-changed-files
       run: |
-        poetry install --no-interaction
-        poetry add --group dev safety bandit
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
 
-    - name: Run safety check
-      run: poetry run safety check --json --output safety-report.json || true
+    - name: Commit rendered diagrams
+      if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/images/*.png
+        git commit -m "docs: update rendered architecture diagrams" || exit 0
+        git push
 
-    - name: Run bandit security scan
-      run: poetry run bandit -r src/ -f json -o bandit-report.json || true
-
-    - name: Upload security scan results
+    - name: Upload diagram artifacts
       uses: actions/upload-artifact@v4
-      if: always()
       with:
-        name: security-reports
-        path: |
-          safety-report.json
-          bandit-report.json
+        name: rendered-diagrams
+        path: docs/images/*.png
+
+  validate-links:
+    name: Validate Documentation Links
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check Markdown links
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-verbose-mode: 'yes'
+        config-file: '.github/markdown-link-check.json'
+
+  validate-workflows:
+    name: Validate GitHub Actions
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install actionlint
+      run: |
+        curl -sL https://github.com/rhymond/actionlint/releases/latest/download/actionlint_1.6.27_linux_amd64.tar.gz | tar xz
+        sudo mv actionlint /usr/local/bin/
+
+    - name: Validate workflows using Makefile
+      run: make validate-workflows
