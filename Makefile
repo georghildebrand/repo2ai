@@ -16,10 +16,10 @@ install-dev:  ## Development installation with all dependencies
 	poetry shell || true
 
 install-system:  ## Install system-wide (use with caution)
-	pip install . --user
+	pip uninstall -y repo2md || true
+	pip install --upgrade . --user
 
 uninstall:  ## Uninstall package
-	pip uninstall repo-to-markdown -y || true
 	pip uninstall repo2md -y || true
 
 test-install:  ## Test installation in clean environment
@@ -32,11 +32,11 @@ test:  ## Run tests
 	poetry run python -m pytest tests/ -v
 
 test-cov:  ## Run tests with coverage
-	poetry run python -m pytest tests/ -v --cov=src/repo_to_markdown --cov-report=html --cov-report=term-missing
+	poetry run python -m pytest tests/ -v --cov=src/repo2md --cov-report=html --cov-report=term-missing
 
 lint:  ## Run linting
 	poetry run flake8 src/ tests/
-	poetry run mypy src/repo_to_markdown/
+	poetry run mypy src/repo2md/
 
 format:  ## Format code
 	poetry run black src/ tests/

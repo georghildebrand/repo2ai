@@ -1,4 +1,4 @@
-# Repo2Markdown
+# repo2md
 
 A minimal Python CLI tool that exports Git repository contents to structured Markdown files. Perfect for creating comprehensive repository documentation, code reviews, or feeding codebases to AI tools.
 
@@ -264,17 +264,17 @@ The tool follows a clean, modular design based on C4 architecture principles:
 The system architecture is documented using C4 diagrams:
 
 #### System Context Diagram
-![System Context Diagram](docs/images/C4_Level1_RepoToMarkdown.png)
+![System Context Diagram](docs/images/C4_Level1_repo2md.png)
 
-*High-level system interactions showing how developers use the Repo2Markdown CLI tool.*
+*High-level system interactions showing how developers use the repo2md CLI tool.*
 
 #### Container Diagram
-![Container Diagram](docs/images/C4_Level2_RepoToMarkdown.png)
+![Container Diagram](docs/images/C4_Level2_repo2md.png)
 
 *Internal system structure showing the CLI, Core, and Output modules.*
 
 #### Component Diagram
-![Component Diagram](docs/images/C4_Level3_RepoToMarkdown.png)
+![Component Diagram](docs/images/C4_Level3_repo2md.png)
 
 *Detailed component breakdown of the Core module's internal structure.*
 

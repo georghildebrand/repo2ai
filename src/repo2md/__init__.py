@@ -1,5 +1,5 @@
 """
-Repo-to-Markdown: Export Git repository contents to structured Markdown files.
+Repo2md: Export Git repository contents to structured Markdown files.
 """
 
 __version__ = "0.1.0"

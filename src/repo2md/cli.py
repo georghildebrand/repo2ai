@@ -1,5 +1,5 @@
 """
-Command line interface for repo-to-markdown.
+Command line interface for repo2md.
 """
 
 import argparse
@@ -14,17 +14,17 @@ from .output import handle_output
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser."""
     parser = argparse.ArgumentParser(
-        prog="repo-to-md",
+        prog="repo2md",
         description="Export Git repository contents to structured Markdown",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  repo-to-md .                           # Export current directory to stdout
-  repo-to-md ./project --output docs.md # Export to file
-  repo-to-md . --clipboard               # Copy to clipboard
-  repo-to-md . --stdout --clipboard      # Both stdout and clipboard
-  repo-to-md . --exclude-meta-files      # Exclude README, LICENSE, etc.
-  repo-to-md . --max-file-size 500000    # Limit file size to 500KB
+  repo2md .                           # Export current directory to stdout
+  repo2md ./project --output docs.md # Export to file
+  repo2md . --clipboard               # Copy to clipboard
+  repo2md . --stdout --clipboard      # Both stdout and clipboard
+  repo2md . --exclude-meta-files      # Exclude README, LICENSE, etc.
+  repo2md . --max-file-size 500000    # Limit file size to 500KB
         """,
     )
 

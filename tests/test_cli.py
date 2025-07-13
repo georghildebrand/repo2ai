@@ -9,7 +9,7 @@ from unittest import TestCase
 from unittest.mock import patch
 import argparse
 
-from repo_to_markdown.cli import (
+from repo2md.cli import (
     create_parser,
     validate_arguments,
     process_ignore_patterns,
@@ -150,13 +150,13 @@ class TestCLIIntegration(TestCase):
 
         shutil.rmtree(self.temp_dir)
 
-    @patch("repo_to_markdown.cli.scan_repository")
-    @patch("repo_to_markdown.cli.generate_markdown")
-    @patch("repo_to_markdown.cli.handle_output")
+    @patch("repo2md.cli.scan_repository")
+    @patch("repo2md.cli.generate_markdown")
+    @patch("repo2md.cli.handle_output")
     def test_main_function(self, mock_output, mock_generate, mock_scan):
         """Test main function execution."""
-        from repo_to_markdown.cli import main
-        from repo_to_markdown.core import ScanResult, RepoFile
+        from repo2md.cli import main
+        from repo2md.core import ScanResult, RepoFile
 
         # Mock scan result
         mock_file = RepoFile(
@@ -171,7 +171,7 @@ class TestCLIIntegration(TestCase):
         mock_generate.return_value = "# Test Markdown"
 
         # Test with mocked arguments
-        test_args = ["repo-to-md", str(self.repo_path), "--stdout"]
+        test_args = ["repo2md", str(self.repo_path), "--stdout"]
 
         with patch("sys.argv", test_args):
             main()

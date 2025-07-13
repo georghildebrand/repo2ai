@@ -1,11 +1,11 @@
-@startuml C4_Level2_RepoToMarkdown
+@startuml C4_Level2_repo2md
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-title Container Diagram - Repo-to-Markdown Internal Architecture
+title Container Diagram - Repo2md Internal Architecture
 
 Person(developer, "Developer", "Nutzer des CLI-Tools")
 
-System_Boundary(repoToMd, "Repo-to-Markdown System") {
+System_Boundary(repoToMd, "Repo2md System") {
     Container(cli, "CLI Module", "Python argparse", "Kommandozeilen-Interface und Parameter-Parsing")
     Container(core, "Core Module", "Python stdlib", "Repository-Scanning, Filterung und Markdown-Generierung")
     Container(output, "Output Module", "Python + pyperclip", "Ausgabe-Handling für File/Clipboard/Stdout")
