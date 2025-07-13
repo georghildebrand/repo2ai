@@ -270,17 +270,17 @@ The tool follows a clean, modular design based on C4 architecture principles:
 The system architecture is documented using C4 diagrams:
 
 #### System Context Diagram
-![System Context Diagram](docs/images/C4_Level1_repo2md.png)
+![System Context Diagram](docs/architecture/images/C4_Level1_repo2md.png)
 
 *High-level system interactions showing how developers use the repo2md CLI tool.*
 
 #### Container Diagram
-![Container Diagram](docs/images/C4_Level2_repo2md.png)
+![Container Diagram](docs/architecture/images/C4_Level2_repo2md.png)
 
 *Internal system structure showing the CLI, Core, and Output modules.*
 
 #### Component Diagram
-![Component Diagram](docs/images/C4_Level3_repo2md.png)
+![Component Diagram](docs/architecture/images/C4_Level3_repo2md.png)
 
 *Detailed component breakdown of the Core module's internal structure.*
 

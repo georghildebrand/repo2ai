@@ -1,4 +1,4 @@
-.PHONY: help install test lint format clean build run
+.PHONY: help install test lint format clean build run docs
 
 help:  ## Show this help message
 	@echo "Available commands:"
@@ -78,17 +78,20 @@ all-checks:  ## Run all checks (format, lint, test)
 render-diagrams:  ## Render PlantUML diagrams to PNG
 	@echo "Rendering PlantUML diagrams..."
 	@if command -v plantuml >/dev/null 2>&1; then \
-		mkdir -p docs/images; \
-		plantuml -tpng docs/architecture/c4/*.puml -o docs/images/; \
+		mkdir -p docs/images && \
+		cd docs && \
+		plantuml -tpng architecture/c4/*.puml -o ../images/ && \
 		echo "✓ Diagrams rendered to docs/images/"; \
 	elif [ -f plantuml.jar ]; then \
-		mkdir -p docs/images; \
-		java -jar plantuml.jar -tpng docs/architecture/c4/*.puml -o docs/images/; \
-		echo "✓ Diagrams rendered to docs/images/ using JAR"; \
+		mkdir -p docs/images && \
+		cd docs && \
+		java -jar plantuml.jar -tpng architecture/c4/*.puml -o ../images/ && \
+		echo "✓ Diagrams rendered to docs/images/"; \
 	else \
-		echo "⚠ PlantUML not found. Install with: brew install plantuml (macOS) or apt-get install plantuml (Ubuntu)"; \
-		echo "  Alternative: Download plantuml.jar and run: java -jar plantuml.jar -tpng docs/architecture/c4/*.puml -o docs/images/"; \
+		echo '⚠ PlantUML not found. Install with: brew install plantuml (macOS) or apt-get install plantuml (Ubuntu)'; \
+		echo '  Alternative: Download plantuml.jar and run: java -jar plantuml.jar -tpng docs/architecture/c4/*.puml -o docs/images/'; \
 	fi
+
 
 docs:  ## Generate all documentation
 	make render-diagrams

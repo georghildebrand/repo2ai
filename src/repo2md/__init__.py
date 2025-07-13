@@ -2,7 +2,14 @@
 Repo2md: Export Git repository contents to structured Markdown files.
 """
 
-__version__ = "0.1.0"
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version(__name__)
+except PackageNotFoundError:
+    # package not installed, fallback to a dev default
+    __version__ = "0.0.0+dev"
+
 __author__ = "Georg Hildebrand"
 __email__ = "noreply@github.com"
 
