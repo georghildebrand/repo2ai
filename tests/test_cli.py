@@ -13,7 +13,9 @@ from repo2md.cli import (
     create_parser,
     validate_arguments,
     process_ignore_patterns,
+    main,
 )
+from repo2md.core import RepoFile, ScanResult
 
 
 class TestCLIParser(TestCase):
@@ -60,6 +62,17 @@ class TestCLIParser(TestCase):
         """Test that help message is properly formatted."""
         with self.assertRaises(SystemExit):
             self.parser.parse_args(["--help"])
+
+    def test_verbose_flag(self):
+        """Test verbose flag parsing."""
+        args = self.parser.parse_args(["-v", "."])
+        self.assertTrue(args.verbose)
+
+        args = self.parser.parse_args(["--verbose", "."])
+        self.assertTrue(args.verbose)
+
+        args = self.parser.parse_args(["."])
+        self.assertFalse(args.verbose)
 
 
 class TestArgumentValidation(TestCase):
@@ -165,7 +178,7 @@ class TestCLIIntegration(TestCase):
             size=15,
             language="python",
         )
-        mock_scan_result = ScanResult(files=[mock_file], repo_root=self.repo_path, total_size=15)
+        mock_scan_result = ScanResult(files=[mock_file], repo_root=self.repo_path, total_size=15, ignored_files=[], included_files=[])
 
         mock_scan.return_value = mock_scan_result
         mock_generate.return_value = "# Test Markdown"
@@ -180,6 +193,48 @@ class TestCLIIntegration(TestCase):
         mock_scan.assert_called_once()
         mock_generate.assert_called_once_with(mock_scan_result)
         mock_output.assert_called_once()
+
+    @patch("repo2md.cli.handle_output")
+    @patch("repo2md.cli.generate_markdown")
+    @patch("repo2md.cli.scan_repository")
+    def test_verbose_integration(self, mock_scan, mock_generate, mock_output):
+        """Test CLI with verbose flag captures stderr output."""
+        from io import StringIO
+
+        # Create mock result with verbose data
+        mock_file = RepoFile(
+            path=self.repo_path / "test.py",
+            content='print("Hello")',
+            size=15,
+            language="python",
+        )
+        ignored_file = self.repo_path / "ignored.log"
+        included_file = self.repo_path / "test.py"
+
+        mock_scan_result = ScanResult(files=[mock_file], repo_root=self.repo_path, total_size=15, ignored_files=[ignored_file], included_files=[included_file])
+
+        mock_scan.return_value = mock_scan_result
+        mock_generate.return_value = "# Test Markdown"
+
+        # Test with verbose flag
+        test_args = ["repo2md", str(self.repo_path), "--verbose", "--stdout"]
+
+        with patch("sys.argv", test_args):
+            with patch("sys.stderr", new_callable=StringIO) as mock_stderr:
+                main()
+
+        # Verify verbose output appears in stderr
+        stderr_output = mock_stderr.getvalue()
+        self.assertIn("=== Verbose File Report ===", stderr_output)
+        self.assertIn("Included files:", stderr_output)
+        self.assertIn("Ignored files:", stderr_output)
+        self.assertIn(str(included_file), stderr_output)
+        self.assertIn(str(ignored_file), stderr_output)
+
+        # Verify scan was called with verbose=True
+        mock_scan.assert_called_once()
+        call_kwargs = mock_scan.call_args[1]
+        self.assertTrue(call_kwargs["verbose"])
 
 
 if __name__ == "__main__":

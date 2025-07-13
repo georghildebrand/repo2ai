@@ -75,6 +75,9 @@ Output Options:
   --clipboard, -c       Copy to clipboard
   --stdout, -s          Output to stdout (default)
 
+Debugging Options:
+  -v, --verbose         Show lists of all files included and all files ignored (printed to stderr for debugging)
+
 Filtering Options:
   --ignore PATTERN      Additional ignore patterns (repeatable)
   --exclude-meta-files  Exclude README, LICENSE, .gitignore, etc.
@@ -125,6 +128,9 @@ repo2md . --exclude-meta-files --include-meta README.md
 
 # Complex filtering for AI tools
 repo2md . --exclude-meta-files --ignore "*.test.js" --ignore "dist/*" --max-file-size 100000 --clipboard
+
+# Debug what files are included/ignored
+repo2md . --verbose --ignore "*.log" --exclude-meta-files
 ```
 
 ## Output Format

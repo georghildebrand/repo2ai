@@ -74,6 +74,9 @@ Examples:
     )
     filter_group.add_argument("--exclude-meta", action="append", help="Exclude specific meta files")
 
+    # Debugging options
+    parser.add_argument("-v", "--verbose", action="store_true", help="Show lists of all files included and all files ignored (output to stderr)")
+
     return parser
 
 
@@ -145,7 +148,19 @@ def main() -> None:
             ignore_patterns=ignore_patterns,
             exclude_meta_files=args.exclude_meta_files,
             max_file_size=args.max_file_size,
+            verbose=args.verbose,
         )
+
+        # Print verbose report if requested
+        if args.verbose:
+            print("=== Verbose File Report ===", file=sys.stderr)
+            print("Included files:", file=sys.stderr)
+            for p in scan_result.included_files:
+                print(f"  {p}", file=sys.stderr)
+            print("\nIgnored files:", file=sys.stderr)
+            for p in scan_result.ignored_files:
+                print(f"  {p}", file=sys.stderr)
+            print("===========================", file=sys.stderr)
 
         # Generate markdown
         print("Generating markdown...", file=sys.stderr)
