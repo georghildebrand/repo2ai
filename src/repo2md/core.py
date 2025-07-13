@@ -26,6 +26,8 @@ class ScanResult(NamedTuple):
     files: List[RepoFile]
     repo_root: Path
     total_size: int
+    ignored_files: List[Path]
+    included_files: List[Path]
 
 
 def _get_language_from_extension(file_path: Path) -> Optional[str]:
@@ -176,6 +178,7 @@ def scan_repository(
     ignore_patterns: Optional[List[str]] = None,
     exclude_meta_files: bool = False,
     max_file_size: int = 1024 * 1024,  # 1MB
+    verbose: bool = False,
 ) -> ScanResult:
     """
     Scan repository and return filtered files.
@@ -185,9 +188,10 @@ def scan_repository(
         ignore_patterns: Additional patterns to ignore
         exclude_meta_files: Whether to exclude meta files like .gitignore, README
         max_file_size: Maximum file size in bytes
+        verbose: Whether to track ignored and included files for reporting
 
     Returns:
-        ScanResult with filtered files
+        ScanResult with filtered files and optional verbose tracking
     """
     repo_root = Path(repo_path).resolve()
 
@@ -248,6 +252,8 @@ def scan_repository(
 
     files = []
     total_size = 0
+    ignored_files: List[Path] = []
+    included_files: List[Path] = []
 
     # Walk through directory
     for root, dirs, filenames in os.walk(repo_root):
@@ -261,22 +267,32 @@ def scan_repository(
 
             # Skip if file matches ignore patterns
             if _should_ignore_file(file_path, repo_root, all_patterns):
+                if verbose:
+                    ignored_files.append(file_path)
                 continue
 
             # If we have Git files, only include tracked files
             if git_files and file_path not in git_files:
+                if verbose:
+                    ignored_files.append(file_path)
                 continue
 
             # Check file size
             try:
                 file_size = file_path.stat().st_size
                 if file_size > max_file_size:
+                    if verbose:
+                        ignored_files.append(file_path)
                     continue
             except (OSError, IOError):
+                if verbose:
+                    ignored_files.append(file_path)
                 continue
 
             # Skip binary files
             if _is_binary_file(file_path):
+                if verbose:
+                    ignored_files.append(file_path)
                 continue
 
             # Read file content
@@ -285,6 +301,8 @@ def scan_repository(
                     content = f.read()
             except (IOError, UnicodeDecodeError):
                 # Skip files we can't read
+                if verbose:
+                    ignored_files.append(file_path)
                 continue
 
             # Determine language
@@ -294,8 +312,16 @@ def scan_repository(
 
             files.append(repo_file)
             total_size += file_size
+            if verbose:
+                included_files.append(file_path)
 
-    return ScanResult(files=files, repo_root=repo_root, total_size=total_size)
+    return ScanResult(
+        files=files,
+        repo_root=repo_root,
+        total_size=total_size,
+        ignored_files=ignored_files,
+        included_files=included_files,
+    )
 
 
 def generate_markdown(scan_result: ScanResult) -> str:

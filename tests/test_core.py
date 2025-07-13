@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from unittest import TestCase
 
-from repo_to_markdown.core import (
+from repo2md.core import (
     RepoFile,
     ScanResult,
     scan_repository,
@@ -192,6 +192,32 @@ class TestRepositoryScanning(TestCase):
         file_paths = [f.path.name for f in result.files]
         self.assertNotIn("test.js", file_paths)
 
+    def test_verbose_tracking(self):
+        """Test verbose file tracking."""
+        # Test with verbose=True
+        result = scan_repository(self.repo_path, verbose=True)
+
+        # Should have tracked included files
+        self.assertIsInstance(result.included_files, list)
+        self.assertGreater(len(result.included_files), 0)
+
+        # Should have tracked ignored files (if any)
+        self.assertIsInstance(result.ignored_files, list)
+
+        # Test with verbose=False (default)
+        result_no_verbose = scan_repository(self.repo_path, verbose=False)
+
+        # Should have empty lists for non-verbose
+        self.assertEqual(len(result_no_verbose.included_files), 0)
+        self.assertEqual(len(result_no_verbose.ignored_files), 0)
+
+        # Test with ignore patterns and verbose
+        result_with_ignores = scan_repository(self.repo_path, ignore_patterns=["*.js"], verbose=True)
+
+        # Should have tracked some ignored files
+        ignored_names = [p.name for p in result_with_ignores.ignored_files]
+        self.assertIn("test.js", ignored_names)
+
 
 class TestMarkdownGeneration(TestCase):
     """Test markdown generation."""
@@ -206,7 +232,7 @@ class TestMarkdownGeneration(TestCase):
             language="python",
         )
 
-        scan_result = ScanResult(files=[test_file], repo_root=repo_root, total_size=15)
+        scan_result = ScanResult(files=[test_file], repo_root=repo_root, total_size=15, ignored_files=[], included_files=[])
 
         markdown = generate_markdown(scan_result)
 
@@ -236,7 +262,7 @@ class TestMarkdownGeneration(TestCase):
             ),
         ]
 
-        scan_result = ScanResult(files=files, repo_root=repo_root, total_size=35)
+        scan_result = ScanResult(files=files, repo_root=repo_root, total_size=35, ignored_files=[], included_files=[])
 
         markdown = generate_markdown(scan_result)
 

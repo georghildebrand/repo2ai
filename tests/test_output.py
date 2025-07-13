@@ -8,7 +8,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from io import StringIO
 
-from repo_to_markdown.output import (
+from repo2md.output import (
     handle_output,
     get_default_output_filename,
 )
@@ -60,8 +60,8 @@ class TestOutputHandling(TestCase):
 
         self.assertEqual(mock_stdout.getvalue().strip(), self.test_content)
 
-    @patch("repo_to_markdown.output.PYPERCLIP_AVAILABLE", True)
-    @patch("repo_to_markdown.output.pyperclip")
+    @patch("repo2md.output.PYPERCLIP_AVAILABLE", True)
+    @patch("repo2md.output.pyperclip")
     def test_clipboard_output(self, mock_pyperclip):
         """Test clipboard output."""
         with patch("sys.stderr", new_callable=StringIO):
@@ -69,7 +69,7 @@ class TestOutputHandling(TestCase):
 
         mock_pyperclip.copy.assert_called_once_with(self.test_content)
 
-    @patch("repo_to_markdown.output.PYPERCLIP_AVAILABLE", False)
+    @patch("repo2md.output.PYPERCLIP_AVAILABLE", False)
     def test_clipboard_unavailable(self):
         """Test clipboard output when pyperclip is unavailable."""
         with patch("sys.stderr", new_callable=StringIO):
@@ -82,8 +82,8 @@ class TestOutputHandling(TestCase):
 
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             with patch("sys.stderr", new_callable=StringIO):
-                with patch("repo_to_markdown.output.PYPERCLIP_AVAILABLE", True):
-                    with patch("repo_to_markdown.output.pyperclip") as mock_pyperclip:
+                with patch("repo2md.output.PYPERCLIP_AVAILABLE", True):
+                    with patch("repo2md.output.pyperclip") as mock_pyperclip:
                         handle_output(
                             content=self.test_content,
                             output_file=output_file,

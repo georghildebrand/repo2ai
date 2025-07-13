@@ -1,5 +1,5 @@
 """
-Command line interface for repo-to-markdown.
+Command line interface for repo2md.
 """
 
 import argparse
@@ -14,17 +14,17 @@ from .output import handle_output
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser."""
     parser = argparse.ArgumentParser(
-        prog="repo-to-md",
+        prog="repo2md",
         description="Export Git repository contents to structured Markdown",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  repo-to-md .                           # Export current directory to stdout
-  repo-to-md ./project --output docs.md # Export to file
-  repo-to-md . --clipboard               # Copy to clipboard
-  repo-to-md . --stdout --clipboard      # Both stdout and clipboard
-  repo-to-md . --exclude-meta-files      # Exclude README, LICENSE, etc.
-  repo-to-md . --max-file-size 500000    # Limit file size to 500KB
+  repo2md .                           # Export current directory to stdout
+  repo2md ./project --output docs.md # Export to file
+  repo2md . --clipboard               # Copy to clipboard
+  repo2md . --stdout --clipboard      # Both stdout and clipboard
+  repo2md . --exclude-meta-files      # Exclude README, LICENSE, etc.
+  repo2md . --max-file-size 500000    # Limit file size to 500KB
         """,
     )
 
@@ -73,6 +73,9 @@ Examples:
         help="Include specific meta files (overrides --exclude-meta-files)",
     )
     filter_group.add_argument("--exclude-meta", action="append", help="Exclude specific meta files")
+
+    # Debugging options
+    parser.add_argument("-v", "--verbose", action="store_true", help="Show lists of all files included and all files ignored (output to stderr)")
 
     return parser
 
@@ -145,7 +148,19 @@ def main() -> None:
             ignore_patterns=ignore_patterns,
             exclude_meta_files=args.exclude_meta_files,
             max_file_size=args.max_file_size,
+            verbose=args.verbose,
         )
+
+        # Print verbose report if requested
+        if args.verbose:
+            print("=== Verbose File Report ===", file=sys.stderr)
+            print("Included files:", file=sys.stderr)
+            for p in scan_result.included_files:
+                print(f"  {p}", file=sys.stderr)
+            print("\nIgnored files:", file=sys.stderr)
+            for p in scan_result.ignored_files:
+                print(f"  {p}", file=sys.stderr)
+            print("===========================", file=sys.stderr)
 
         # Generate markdown
         print("Generating markdown...", file=sys.stderr)

@@ -1,17 +1,17 @@
-@startuml C4_Level3_RepoToMarkdown
+@startuml C4_Level3_repo2md
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
 title Component Diagram - Core Module Internal Structure
 
 Person(developer, "Developer", "User of the CLI tool")
 
-System_Boundary(repoToMd, "Repo-to-Markdown System") {
+System_Boundary(repoToMd, "Repo2md System") {
     Container_Boundary(cli, "CLI Module") {
         Component(argparser, "Argument Parser", "argparse", "Parses command line arguments")
         Component(validator, "Argument Validator", "Python", "Validates input parameters")
         Component(processor, "Pattern Processor", "Python", "Processes ignore patterns")
     }
-    
+
     Container_Boundary(core, "Core Module") {
         Component(scanner, "Repository Scanner", "os.walk + subprocess", "Scans repository structure")
         Component(filter, "File Filter", "fnmatch", "Filters files based on patterns")
@@ -20,7 +20,7 @@ System_Boundary(repoToMd, "Repo-to-Markdown System") {
         Component(gitignore, "Gitignore Parser", "file parsing", "Parses .gitignore patterns")
         Component(binary, "Binary Detector", "byte analysis", "Detects binary files")
     }
-    
+
     Container_Boundary(output, "Output Module") {
         Component(filewriter, "File Writer", "pathlib", "Writes markdown to files")
         Component(clipboard, "Clipboard Handler", "pyperclip", "Copies to system clipboard")

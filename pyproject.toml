@@ -3,13 +3,13 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "repo2markdown"
-version = "0.1.0"
+name = "repo2md"
+version = "0.1.1"
 description = "Export Git repository contents to structured Markdown"
 authors = ["Georg Hildebrand"]
 readme = "README.md"
 license = "MIT"
-packages = [{include = "repo_to_markdown", from = "src"}]
+packages = [{include = "repo2md", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -18,13 +18,13 @@ pyperclip = "^1.8.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4"
 pytest-cov = "^6.2"
-black = "^22.0"
+black = "^25.1"
 flake8 = "^4.0"
 mypy = "^1.16.1"
 types-pyperclip = "^1.9.0"
 
 [tool.poetry.scripts]
-repo2md = "repo_to_markdown.cli:main"
+repo2md = "repo2md.cli:main"
 
 [tool.poetry.urls]
 Homepage = "https://github.com/georghildebrand/Repo2Markdown"

@@ -1,4 +1,4 @@
-# Repo2Markdown
+# repo2md
 
 A minimal Python CLI tool that exports Git repository contents to structured Markdown files. Perfect for creating comprehensive repository documentation, code reviews, or feeding codebases to AI tools.
 
@@ -21,6 +21,12 @@ A minimal Python CLI tool that exports Git repository contents to structured Mar
 ## Installation
 
 ### From Source
+
+```bash
+pip install git+https://github.com/georghildebrand/Repo2Markdown.git@main
+```
+
+Or from local clone:
 
 ```bash
 git clone https://github.com/georghildebrand/Repo2Markdown.git
@@ -75,6 +81,9 @@ Output Options:
   --clipboard, -c       Copy to clipboard
   --stdout, -s          Output to stdout (default)
 
+Debugging Options:
+  -v, --verbose         Show lists of all files included and all files ignored (printed to stderr for debugging)
+
 Filtering Options:
   --ignore PATTERN      Additional ignore patterns (repeatable)
   --exclude-meta-files  Exclude README, LICENSE, .gitignore, etc.
@@ -125,6 +134,9 @@ repo2md . --exclude-meta-files --include-meta README.md
 
 # Complex filtering for AI tools
 repo2md . --exclude-meta-files --ignore "*.test.js" --ignore "dist/*" --max-file-size 100000 --clipboard
+
+# Debug what files are included/ignored
+repo2md . --verbose --ignore "*.log" --exclude-meta-files
 ```
 
 ## Output Format
@@ -264,17 +276,17 @@ The tool follows a clean, modular design based on C4 architecture principles:
 The system architecture is documented using C4 diagrams:
 
 #### System Context Diagram
-![System Context Diagram](docs/images/C4_Level1_RepoToMarkdown.png)
+![System Context Diagram](docs/architecture/images/C4_Level1_repo2md.png)
 
-*High-level system interactions showing how developers use the Repo2Markdown CLI tool.*
+*High-level system interactions showing how developers use the repo2md CLI tool.*
 
 #### Container Diagram
-![Container Diagram](docs/images/C4_Level2_RepoToMarkdown.png)
+![Container Diagram](docs/architecture/images/C4_Level2_repo2md.png)
 
 *Internal system structure showing the CLI, Core, and Output modules.*
 
 #### Component Diagram
-![Component Diagram](docs/images/C4_Level3_RepoToMarkdown.png)
+![Component Diagram](docs/architecture/images/C4_Level3_repo2md.png)
 
 *Detailed component breakdown of the Core module's internal structure.*
 

@@ -1,17 +1,17 @@
-@startuml C4_Level1_RepoToMarkdown
+@startuml C4_Level1_repo2md
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
-title System Context Diagram - Repo-to-Markdown Tool
+title System Context Diagram - Repo2md Tool
 
 Person(developer, "Developer", "Entwickler der das Repository dokumentieren möchte")
 
-System_Boundary(repoToMd, "Repo-to-Markdown System") {
-    System(repoToMdApp, "Repo-to-Markdown CLI", "Python-Anwendung die Repository-Inhalte in Markdown exportiert")
+System_Boundary(repoToMd, "Repo2md System") {
+    System(repoToMdApp, "Repo2md CLI", "Python-Anwendung die Repository-Inhalte in Markdown exportiert")
 }
 
 System_Ext(gitRepo, "Git Repository", "Lokales oder Remote Git-Repository mit Projektdateien")
 System_Ext(fileSystem, "File System", "Lokales Dateisystem für Ausgabe und Konfiguration")
-System_Ext(configFiles, "Config Files", "Konfigurationsdateien (.repoignore, .gitignore, settings.yaml)")
+System_Ext(configFiles, "Config Files", "Configuration files (.gitignore, .github/workflows, .crossnote/)")
 System_Ext(clipboard, "System Clipboard", "Systemzwischenablage für direktes Kopieren")
 
 Rel(developer, repoToMdApp, "Führt CLI-Kommandos aus", "CLI")
