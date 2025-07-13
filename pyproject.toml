@@ -16,7 +16,7 @@ python = "^3.11"
 pyperclip = "^1.8.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.0"
+pytest = "^8.4"
 pytest-cov = "^6.2"
 black = "^25.1"
 flake8 = "^7.3"
