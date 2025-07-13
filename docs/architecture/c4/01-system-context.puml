@@ -11,7 +11,7 @@ System_Boundary(repoToMd, "Repo2md System") {
 
 System_Ext(gitRepo, "Git Repository", "Lokales oder Remote Git-Repository mit Projektdateien")
 System_Ext(fileSystem, "File System", "Lokales Dateisystem für Ausgabe und Konfiguration")
-System_Ext(configFiles, "Config Files", "Konfigurationsdateien (.repoignore, .gitignore, settings.yaml)")
+System_Ext(configFiles, "Config Files", "Configuration files (.gitignore, .github/workflows, .crossnote/)")
 System_Ext(clipboard, "System Clipboard", "Systemzwischenablage für direktes Kopieren")
 
 Rel(developer, repoToMdApp, "Führt CLI-Kommandos aus", "CLI")
