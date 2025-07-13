@@ -23,6 +23,12 @@ A minimal Python CLI tool that exports Git repository contents to structured Mar
 ### From Source
 
 ```bash
+pip install git+https://github.com/georghildebrand/Repo2Markdown.git@main
+```
+
+Or from local clone:
+
+```bash
 git clone https://github.com/georghildebrand/Repo2Markdown.git
 cd Repo2Markdown
 make install
