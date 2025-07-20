@@ -95,8 +95,8 @@ jobs:
 
     - name: Test CLI functionality
       run: |
-        poetry run repo2md --help
-        poetry run repo2md . --output test-output.md --max-file-size 50000
+        poetry run repo2ai --help
+        poetry run repo2ai . --output test-output.md --max-file-size 50000
 
     - name: Verify output file
       shell: bash
