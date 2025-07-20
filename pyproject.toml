@@ -9,9 +9,9 @@ description = "Export Git repository contents to structured Markdown with AI cha
 authors = ["Georg Hildebrand <your-email@example.com>"]  # Add email
 readme = "README.md"
 license = "MIT"
-homepage = "https://github.com/georghildebrand/Repo2Markdown"
-repository = "https://github.com/georghildebrand/Repo2Markdown"
-documentation = "https://github.com/georghildebrand/Repo2Markdown#readme"
+homepage = "https://github.com/georghildebrand/repo2ai"
+repository = "https://github.com/georghildebrand/repo2ai"
+documentation = "https://github.com/georghildebrand/repo2ai#readme"
 keywords = ["markdown", "documentation", "git", "repository", "export", "ai-chat"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -45,5 +45,5 @@ types-pyperclip = "^1.9.0"
 repo2ai = "repo2ai.cli:main"
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/georghildebrand/Repo2Markdown/issues"
-"Changelog" = "https://github.com/georghildebrand/Repo2Markdown/releases"
+"Bug Tracker" = "https://github.com/georghildebrand/repo2ai/issues"
+"Changelog" = "https://github.com/georghildebrand/repo2ai/releases"

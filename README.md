@@ -1,30 +1,28 @@
 # Repo2AI
 
-[![CI/CD Pipeline](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/ci.yml)
-[![Documentation](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/docs.yml/badge.svg)](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/docs.yml)
-[![Development Status](https://img.shields.io/badge/status-development-orange.svg)](https://github.com/georghildebrand/Repo2Markdown)
+[![CI/CD Pipeline](https://github.com/georghildebrand/repo2ai/actions/workflows/ci.yml/badge.svg)](https://github.com/georghildebrand/repo2ai/actions/workflows/ci.yml)
+[![Documentation](https://github.com/georghildebrand/repo2ai/actions/workflows/docs.yml/badge.svg)](https://github.com/georghildebrand/repo2ai/actions/workflows/docs.yml)
+[![Development Status](https://img.shields.io/badge/status-development-orange.svg)](https://github.com/georghildebrand/repo2ai)
 
 Export Git repository contents to structured Markdown with **AI Chat Integration**. Perfect for code analysis, documentation, and getting AI assistance with your projects.
 
 ## 🚀 Quick Start
 
 ```bash
-# Install from source (no PyPI package yet)
-git clone https://github.com/georghildebrand/Repo2Markdown.git
-cd Repo2Markdown
-make install
+# Install from PyPI
+pip install repo2ai
 
 # Basic export
-poetry run repo2ai .
+repo2ai .
 
 # Copy to clipboard and open ChatGPT
-poetry run repo2ai . --open-chat chatgpt
+repo2ai . --open-chat chatgpt
 
 # Open Claude with a specific prompt
-poetry run repo2ai . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
+repo2ai . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
 
 # Try all AI services with a prompt
-poetry run repo2ai . --chat-all --prompt "Review this repository structure"
+repo2ai . --chat-all --prompt "Review this repository structure"
 ```
 
 ## ✨ Features
@@ -44,16 +42,16 @@ repo2ai now supports automatic browser integration with popular AI services, mak
 
 ```bash
 # Copy repo to clipboard and open ChatGPT
-poetry run repo2ai . --open-chat chatgpt
+repo2ai . --open-chat chatgpt
 
 # Open Claude with a specific prompt
-poetry run repo2ai . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
+repo2ai . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
 
 # Try all AI services with a prompt
-poetry run repo2ai . --chat-all --prompt "Review this repository structure"
+repo2ai . --chat-all --prompt "Review this repository structure"
 
 # Use specific browser
-poetry run repo2ai . --open-chat chatgpt --browser firefox
+repo2ai . --open-chat chatgpt --browser firefox
 ```
 
 ### AI Chat Options
@@ -82,36 +80,36 @@ poetry run repo2ai . --open-chat chatgpt --browser firefox
 
 ### Basic Export
 ```bash
-poetry run repo2ai .                                    # Export current directory to stdout
-poetry run repo2ai ./project --output docs.md          # Export to file
-poetry run repo2ai . --clipboard                       # Copy to clipboard
+repo2ai .                                    # Export current directory to stdout
+repo2ai ./project --output docs.md          # Export to file
+repo2ai . --clipboard                       # Copy to clipboard
 ```
 
 ### AI Chat Integration
 ```bash
 # Code Analysis
-poetry run repo2ai . --open-chat claude --prompt "Analyze this code for potential security vulnerabilities"
+repo2ai . --open-chat claude --prompt "Analyze this code for potential security vulnerabilities"
 
 # Architecture Review
-poetry run repo2ai . --open-chat chatgpt --prompt "Review the architecture and suggest improvements"
+repo2ai . --open-chat chatgpt --prompt "Review the architecture and suggest improvements"
 
 # Documentation Help
-poetry run repo2ai . --open-chat gemini --prompt "Help me write better documentation for this project"
+repo2ai . --open-chat gemini --prompt "Help me write better documentation for this project"
 
 # Quick Questions
-poetry run repo2ai . --chat-all --prompt "Where are logs written in this application?"
+repo2ai . --chat-all --prompt "Where are logs written in this application?"
 ```
 
 ### Advanced Filtering
 ```bash
 # Exclude sensitive files when sharing with AI
-poetry run repo2ai . --open-chat claude --ignore "*.env" --ignore "secrets/*" --prompt "Review this code"
+repo2ai . --open-chat claude --ignore "*.env" --ignore "secrets/*" --prompt "Review this code"
 
 # Large repositories with size limits
-poetry run repo2ai . --max-file-size 50000 --exclude-meta-files
+repo2ai . --max-file-size 50000 --exclude-meta-files
 
 # Custom ignore patterns
-poetry run repo2ai . --ignore "*.log" --ignore "temp/*" --ignore "*.tmp"
+repo2ai . --ignore "*.log" --ignore "temp/*" --ignore "*.tmp"
 ```
 
 ## 🛠️ Installation
@@ -120,17 +118,17 @@ poetry run repo2ai . --ignore "*.log" --ignore "temp/*" --ignore "*.tmp"
 
 ### From Source (Current Method)
 ```bash
-git clone https://github.com/georghildebrand/Repo2Markdown.git
+git clone https://github.com/georghildebrand/repo2ai.git
 cd Repo2Markdown
 make install
 
 # Run with poetry
-poetry run repo2ai --help
+repo2ai --help
 ```
 
 ### Development Setup
 ```bash
-git clone https://github.com/georghildebrand/Repo2Markdown.git
+git clone https://github.com/georghildebrand/repo2ai.git
 cd Repo2Markdown
 make setup  # Complete development environment
 ```
@@ -220,7 +218,7 @@ Generate diagrams with: `make docs`
 
 1. **Setup Development Environment**
    ```bash
-   git clone https://github.com/georghildebrand/Repo2Markdown.git
+   git clone https://github.com/georghildebrand/repo2ai.git
    cd Repo2Markdown
    make setup  # Install dependencies + dev tools
    ```
@@ -305,8 +303,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/georghildebrand/Repo2Markdown)
-- [Documentation](https://github.com/georghildebrand/Repo2Markdown/tree/main/docs)
-- [Architecture Diagrams](https://github.com/georghildebrand/Repo2Markdown/tree/main/docs/images)
-- [PyPI Package](https://pypi.org/project/repo2ai/) *(Coming Soon)*
+- [GitHub Repository](https://github.com/georghildebrand/repo2ai)
+- [Documentation](https://github.com/georghildebrand/repo2ai/tree/main/docs)
+- [Architecture Diagrams](https://github.com/georghildebrand/repo2ai/tree/main/docs/images)
+- [PyPI Package](https://pypi.org/project/repo2ai/)
 
