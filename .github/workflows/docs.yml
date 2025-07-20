@@ -78,8 +78,8 @@ jobs:
         use-verbose-mode: 'yes'
         config-file: '.github/markdown-link-check.json'
 
-  validate-workflows:
-    name: Validate GitHub Actions
+  validate-workflows-actionlint:
+    name: Validate GitHub Actions (actionlint)
     runs-on: ubuntu-latest
 
     steps:
@@ -90,8 +90,8 @@ jobs:
       with:
         files: '.github/workflows/*.yml'
 
-  validate-workflows:
-    name: Validate GitHub Actions
+  validate-workflows-makefile:
+    name: Validate GitHub Actions (Makefile)
     runs-on: ubuntu-latest
 
     steps:
@@ -106,4 +106,4 @@ jobs:
         rm actionlint.tar.gz
 
     - name: Validate workflows using Makefile
-      run: make validate-workflows
+      run: make validate
