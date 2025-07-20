@@ -9,13 +9,13 @@ from unittest import TestCase
 from unittest.mock import patch
 import argparse
 
-from repo2md.cli import (
+from repo2ai.cli import (
     create_parser,
     validate_arguments,
     process_ignore_patterns,
     main,
 )
-from repo2md.core import RepoFile, ScanResult
+from repo2ai.core import RepoFile, ScanResult
 
 
 class TestCLIParser(TestCase):
@@ -197,13 +197,13 @@ class TestCLIIntegration(TestCase):
 
         shutil.rmtree(self.temp_dir)
 
-    @patch("repo2md.cli.scan_repository")
-    @patch("repo2md.cli.generate_markdown")
-    @patch("repo2md.cli.handle_output")
+    @patch("repo2ai.cli.scan_repository")
+    @patch("repo2ai.cli.generate_markdown")
+    @patch("repo2ai.cli.handle_output")
     def test_main_function(self, mock_output, mock_generate, mock_scan):
         """Test main function execution."""
-        from repo2md.cli import main
-        from repo2md.core import ScanResult, RepoFile
+        from repo2ai.cli import main
+        from repo2ai.core import ScanResult, RepoFile
 
         # Mock scan result
         mock_file = RepoFile(
@@ -224,7 +224,7 @@ class TestCLIIntegration(TestCase):
         mock_generate.return_value = "# Test Markdown"
 
         # Test with mocked arguments
-        test_args = ["repo2md", str(self.repo_path), "--stdout"]
+        test_args = ["repo2ai", str(self.repo_path), "--stdout"]
 
         with patch("sys.argv", test_args):
             main()
@@ -234,9 +234,9 @@ class TestCLIIntegration(TestCase):
         mock_generate.assert_called_once_with(mock_scan_result)
         mock_output.assert_called_once()
 
-    @patch("repo2md.cli.handle_output")
-    @patch("repo2md.cli.generate_markdown")
-    @patch("repo2md.cli.scan_repository")
+    @patch("repo2ai.cli.handle_output")
+    @patch("repo2ai.cli.generate_markdown")
+    @patch("repo2ai.cli.scan_repository")
     def test_verbose_integration(self, mock_scan, mock_generate, mock_output):
         """Test CLI with verbose flag captures stderr output."""
         from io import StringIO
@@ -263,7 +263,7 @@ class TestCLIIntegration(TestCase):
         mock_generate.return_value = "# Test Markdown"
 
         # Test with verbose flag
-        test_args = ["repo2md", str(self.repo_path), "--verbose", "--stdout"]
+        test_args = ["repo2ai", str(self.repo_path), "--verbose", "--stdout"]
 
         with patch("sys.argv", test_args):
             with patch("sys.stderr", new_callable=StringIO) as mock_stderr:

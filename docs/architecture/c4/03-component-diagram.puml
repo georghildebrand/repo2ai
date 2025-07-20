@@ -1,11 +1,11 @@
-@startuml C4_Level3_repo2md
+@startuml C4_Level3_repo2ai
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
 title Component Diagram - Core Module Internal Structure (Updated)
 
 Person(developer, "Developer", "User of the CLI tool")
 
-System_Boundary(repoToMd, "Repo2md System") {
+System_Boundary(repoToAi, "Repo2ai System") {
     Container_Boundary(cli, "CLI Module") {
         Component(argparser, "Argument Parser", "argparse", "Parses command line arguments including AI chat options")
         Component(validator, "Argument Validator", "Python", "Validates input parameters and AI chat settings")

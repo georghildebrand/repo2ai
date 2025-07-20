@@ -1,4 +1,4 @@
-# Repo2Markdown
+# Repo2AI
 
 [![CI/CD Pipeline](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/ci.yml)
 [![Documentation](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/docs.yml/badge.svg)](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/docs.yml)
@@ -15,16 +15,16 @@ cd Repo2Markdown
 make install
 
 # Basic export
-poetry run repo2md .
+poetry run repo2ai .
 
 # Copy to clipboard and open ChatGPT
-poetry run repo2md . --open-chat chatgpt
+poetry run repo2ai . --open-chat chatgpt
 
 # Open Claude with a specific prompt
-poetry run repo2md . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
+poetry run repo2ai . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
 
 # Try all AI services with a prompt
-poetry run repo2md . --chat-all --prompt "Review this repository structure"
+poetry run repo2ai . --chat-all --prompt "Review this repository structure"
 ```
 
 ## ✨ Features
@@ -38,22 +38,22 @@ poetry run repo2md . --chat-all --prompt "Review this repository structure"
 
 ## 🤖 AI Chat Integration
 
-repo2md now supports automatic browser integration with popular AI services, making it easy to share your repository with AI assistants for code analysis, review, and assistance.
+repo2ai now supports automatic browser integration with popular AI services, making it easy to share your repository with AI assistants for code analysis, review, and assistance.
 
 ### Quick Start with AI Chat
 
 ```bash
 # Copy repo to clipboard and open ChatGPT
-poetry run repo2md . --open-chat chatgpt
+poetry run repo2ai . --open-chat chatgpt
 
 # Open Claude with a specific prompt
-poetry run repo2md . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
+poetry run repo2ai . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
 
 # Try all AI services with a prompt
-poetry run repo2md . --chat-all --prompt "Review this repository structure"
+poetry run repo2ai . --chat-all --prompt "Review this repository structure"
 
 # Use specific browser
-poetry run repo2md . --open-chat chatgpt --browser firefox
+poetry run repo2ai . --open-chat chatgpt --browser firefox
 ```
 
 ### AI Chat Options
@@ -82,36 +82,36 @@ poetry run repo2md . --open-chat chatgpt --browser firefox
 
 ### Basic Export
 ```bash
-poetry run repo2md .                                    # Export current directory to stdout
-poetry run repo2md ./project --output docs.md          # Export to file
-poetry run repo2md . --clipboard                       # Copy to clipboard
+poetry run repo2ai .                                    # Export current directory to stdout
+poetry run repo2ai ./project --output docs.md          # Export to file
+poetry run repo2ai . --clipboard                       # Copy to clipboard
 ```
 
 ### AI Chat Integration
 ```bash
 # Code Analysis
-poetry run repo2md . --open-chat claude --prompt "Analyze this code for potential security vulnerabilities"
+poetry run repo2ai . --open-chat claude --prompt "Analyze this code for potential security vulnerabilities"
 
 # Architecture Review
-poetry run repo2md . --open-chat chatgpt --prompt "Review the architecture and suggest improvements"
+poetry run repo2ai . --open-chat chatgpt --prompt "Review the architecture and suggest improvements"
 
 # Documentation Help
-poetry run repo2md . --open-chat gemini --prompt "Help me write better documentation for this project"
+poetry run repo2ai . --open-chat gemini --prompt "Help me write better documentation for this project"
 
 # Quick Questions
-poetry run repo2md . --chat-all --prompt "Where are logs written in this application?"
+poetry run repo2ai . --chat-all --prompt "Where are logs written in this application?"
 ```
 
 ### Advanced Filtering
 ```bash
 # Exclude sensitive files when sharing with AI
-poetry run repo2md . --open-chat claude --ignore "*.env" --ignore "secrets/*" --prompt "Review this code"
+poetry run repo2ai . --open-chat claude --ignore "*.env" --ignore "secrets/*" --prompt "Review this code"
 
 # Large repositories with size limits
-poetry run repo2md . --max-file-size 50000 --exclude-meta-files
+poetry run repo2ai . --max-file-size 50000 --exclude-meta-files
 
 # Custom ignore patterns
-poetry run repo2md . --ignore "*.log" --ignore "temp/*" --ignore "*.tmp"
+poetry run repo2ai . --ignore "*.log" --ignore "temp/*" --ignore "*.tmp"
 ```
 
 ## 🛠️ Installation
@@ -125,7 +125,7 @@ cd Repo2Markdown
 make install
 
 # Run with poetry
-poetry run repo2md --help
+poetry run repo2ai --help
 ```
 
 ### Development Setup
@@ -138,7 +138,7 @@ make setup  # Complete development environment
 ### Future PyPI Installation (Planned)
 ```bash
 # Will be available after first release
-pip install repo2md
+pip install repo2ai
 ```
 
 ## 📋 CLI Options
@@ -308,5 +308,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [GitHub Repository](https://github.com/georghildebrand/Repo2Markdown)
 - [Documentation](https://github.com/georghildebrand/Repo2Markdown/tree/main/docs)
 - [Architecture Diagrams](https://github.com/georghildebrand/Repo2Markdown/tree/main/docs/images)
-- [PyPI Package](https://pypi.org/project/repo2md/) *(Coming Soon)*
+- [PyPI Package](https://pypi.org/project/repo2ai/) *(Coming Soon)*
 

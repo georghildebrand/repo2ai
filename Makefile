@@ -24,11 +24,11 @@ install-wheel:  ## Build and install wheel package locally
 	pip install dist/*.whl --force-reinstall
 
 install-system:  ## Install system-wide (use with caution)
-	pip uninstall -y repo2md || true
+	pip uninstall -y repo2ai || true
 	pip install --upgrade . --user
 
 uninstall:  ## Uninstall package
-	pip uninstall repo2md -y || true
+	pip uninstall repo2ai -y || true
 
 # =============================================================================
 # BUILD & PACKAGING
@@ -54,7 +54,7 @@ format-check:  ## Check code formatting without changes
 
 lint:  ## Run linting (flake8 + mypy)
 	poetry run flake8 src/ tests/
-	poetry run mypy src/repo2md/
+	poetry run mypy src/repo2ai/
 
 
 # =============================================================================
@@ -65,12 +65,12 @@ test:  ## Run tests
 	poetry run python -m pytest tests/ -v
 
 test-cov:  ## Run tests with coverage report
-	poetry run python -m pytest tests/ -v --cov=src/repo2md --cov-report=html --cov-report=term-missing
+	poetry run python -m pytest tests/ -v --cov=src/repo2ai --cov-report=html --cov-report=term-missing
 
 test-install:  ## Test installation in clean environment
 	python -m venv test_env
 	test_env/bin/pip install .
-	test_env/bin/repo2md --help
+	test_env/bin/repo2ai --help
 	rm -rf test_env
 
 # =============================================================================
@@ -99,33 +99,33 @@ docs:  ## Generate documentation (render diagrams)
 # =============================================================================
 
 run:  ## Run CLI on current directory
-	poetry run repo2md .
+	poetry run repo2ai .
 
 run-help:  ## Show CLI help
-	poetry run repo2md --help
+	poetry run repo2ai --help
 
 run-clipboard: ## Run CLI in clipboard mode
-	poetry run repo2md . --clipboard
+	poetry run repo2ai . --clipboard
 
 run-file:  ## Run with file output
-	poetry run repo2md . --output example_output.md
+	poetry run repo2ai . --output example_output.md
 
 run-chat-gpt:  ## Run with ChatGPT integration
-	poetry run repo2md . --open-chat chatgpt --prompt "Please analyze this repository structure"
+	poetry run repo2ai . --open-chat chatgpt --prompt "Please analyze this repository structure"
 
 run-chat-claude:  ## Run with ChatGPT integration
-	poetry run repo2md . --open-chat claude --prompt "Please analyze this repository structure"
+	poetry run repo2ai . --open-chat claude --prompt "Please analyze this repository structure"
 
 run-chat-gemini:  ## Run with ChatGPT integration
-	poetry run repo2md . --open-chat gemini --prompt "Please analyze this repository structure"
+	poetry run repo2ai . --open-chat gemini --prompt "Please analyze this repository structure"
 
 run-chat-all:  ## Run with all AI services
-	poetry run repo2md . --chat-all --prompt "Review this codebase"
+	poetry run repo2ai . --chat-all --prompt "Review this codebase"
 
 demo:  ## Demonstrate key features
-	@echo "🚀 Demonstrating repo2md features..."
+	@echo "🚀 Demonstrating repo2ai features..."
 	@echo "\n1. Basic export:"
-	poetry run repo2md . --max-file-size 1000 --output demo.md
+	poetry run repo2ai . --max-file-size 1000 --output demo.md
 	@echo "\n2. With AI integration:"
 	@echo "   Run: make run-chat"
 	@echo "\n3. All features:"

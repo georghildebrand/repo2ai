@@ -1,11 +1,11 @@
-@startuml C4_Level2_repo2md
+@startuml C4_Level2_repo2ai
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-title Container Diagram - Repo2md Internal Architecture (Updated)
+title Container Diagram - Repo2ai Internal Architecture (Updated)
 
 Person(developer, "Developer", "Nutzer des CLI-Tools")
 
-System_Boundary(repoToMd, "Repo2md System") {
+System_Boundary(repoToAi, "Repo2ai System") {
     Container(cli, "CLI Module", "Python argparse", "Kommandozeilen-Interface und Parameter-Parsing inkl. AI-Chat Optionen")
     Container(core, "Core Module", "Python stdlib", "Repository-Scanning, Filterung und Markdown-Generierung")
     Container(output, "Output Module", "Python + pyperclip", "Ausgabe-Handling für File/Clipboard/Stdout")

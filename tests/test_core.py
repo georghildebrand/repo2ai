@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from unittest import TestCase
 
-from repo2md.core import (
+from repo2ai.core import (
     RepoFile,
     ScanResult,
     scan_repository,

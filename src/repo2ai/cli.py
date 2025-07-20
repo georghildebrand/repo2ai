@@ -1,5 +1,5 @@
 """
-Command line interface for repo2md with browser automation.
+Command line interface for repo2ai with browser automation.
 """
 
 import argparse
@@ -15,17 +15,17 @@ from .browser import open_ai_chat
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser."""
     parser = argparse.ArgumentParser(
-        prog="repo2md",
+        prog="repo2ai",
         description="Export Git repository contents to structured Markdown and optionally open AI chat",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  repo2md .                                    # Export current directory to stdout
-  repo2md ./project --output docs.md          # Export to file
-  repo2md . --clipboard                       # Copy to clipboard
-  repo2md . --open-chat chatgpt               # Copy to clipboard and open ChatGPT
-  repo2md . --open-chat claude --prompt "Analyze this code"  # Open Claude with prompt
-  repo2md . --chat-all --prompt "Review this" # Try all AI services
+  repo2ai .                                    # Export current directory to stdout
+  repo2ai ./project --output docs.md          # Export to file
+  repo2ai . --clipboard                       # Copy to clipboard
+  repo2ai . --open-chat chatgpt               # Copy to clipboard and open ChatGPT
+  repo2ai . --open-chat claude --prompt "Analyze this code"  # Open Claude with prompt
+  repo2ai . --chat-all --prompt "Review this" # Try all AI services
         """,
     )
 

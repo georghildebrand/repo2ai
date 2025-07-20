@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from io import StringIO
 
-from repo2md.browser import (
+from repo2ai.browser import (
     create_chat_url,
     open_ai_chat,
     get_browser_controller,
@@ -34,7 +34,7 @@ class TestBrowserAutomation(unittest.TestCase):
         with self.assertRaises(ValueError):
             create_chat_url("invalid_service")
 
-    @patch("repo2md.browser.webbrowser")
+    @patch("repo2ai.browser.webbrowser")
     def test_get_browser_controller(self, mock_webbrowser):
         """Test browser controller selection."""
         mock_browser = MagicMock()
@@ -59,7 +59,7 @@ class TestBrowserAutomation(unittest.TestCase):
         self.assertIn("New chat", output)
         self.assertIn("test prompt", output)
 
-    @patch("repo2md.browser.webbrowser")
+    @patch("repo2ai.browser.webbrowser")
     def test_open_ai_chat(self, mock_webbrowser):
         """Test opening AI chat services."""
         mock_browser = MagicMock()

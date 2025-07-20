@@ -3,7 +3,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "repo-to-md"
+name = "repo2ai"
 version = "0.1.1"
 description = "Export Git repository contents to structured Markdown with AI chat integration"
 authors = ["Georg Hildebrand <your-email@example.com>"]  # Add email
@@ -26,7 +26,7 @@ classifiers = [
     "Topic :: Software Development :: Documentation",
     "Topic :: Text Processing :: Markup :: Markdown",
 ]
-packages = [{include = "repo2md", from = "src"}]
+packages = [{include = "repo2ai", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -42,7 +42,7 @@ mypy = "^1.16.1"
 types-pyperclip = "^1.9.0"
 
 [tool.poetry.scripts]
-repo2md = "repo2md.cli:main"
+repo2ai = "repo2ai.cli:main"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/georghildebrand/Repo2Markdown/issues"

@@ -1,9 +1,9 @@
 @startuml DevWorkflow
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
-title Development Workflow - Repo2md Project
+title Development Workflow - Repo2ai Project
 
-Person(developer, "Developer", "Contributor to repo2md project")
+Person(developer, "Developer", "Contributor to repo2ai project")
 
 System_Boundary(devEnv, "Development Environment") {
     System(localRepo, "Local Repository", "Git repository with Poetry setup")

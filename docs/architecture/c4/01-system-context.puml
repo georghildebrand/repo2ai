@@ -1,12 +1,12 @@
-@startuml C4_Level1_repo2md
+@startuml C4_Level1_repo2ai
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
-title System Context Diagram - Repo2md Tool (Updated)
+title System Context Diagram - Repo2ai Tool (Updated)
 
 Person(developer, "Developer", "Entwickler der das Repository dokumentieren und mit AI analysieren möchte")
 
-System_Boundary(repoToMd, "Repo2md System") {
-    System(repoToMdApp, "Repo2md CLI", "Python-Anwendung die Repository-Inhalte in Markdown exportiert und AI-Chat Integration bietet")
+System_Boundary(repoToAi, "Repo2ai System") {
+    System(repoToAiApp, "Repo2ai CLI", "Python-Anwendung die Repository-Inhalte in Markdown exportiert und AI-Chat Integration bietet")
 }
 
 System_Ext(gitRepo, "Git Repository", "Lokales oder Remote Git-Repository mit Projektdateien")
@@ -19,13 +19,13 @@ System_Ext(chatgpt, "ChatGPT", "OpenAI ChatGPT Service")
 System_Ext(claude, "Claude", "Anthropic Claude Service")
 System_Ext(gemini, "Gemini", "Google Gemini Service")
 
-Rel(developer, repoToMdApp, "Führt CLI-Kommandos aus", "CLI")
-Rel(repoToMdApp, gitRepo, "Liest Repository-Inhalte", "Git/File I/O")
-Rel(repoToMdApp, fileSystem, "Schreibt Markdown-Datei", "File I/O")
-Rel(repoToMdApp, configFiles, "Liest Konfiguration und Ignore-Patterns", "File I/O")
-Rel(repoToMdApp, clipboard, "Kopiert Output in Zwischenablage", "System API")
-Rel(repoToMdApp, browser, "Öffnet AI-Services", "webbrowser module")
-Rel(repoToMdApp, developer, "Stdout/Stderr Ausgabe", "Terminal")
+Rel(developer, repoToAiApp, "Führt CLI-Kommandos aus", "CLI")
+Rel(repoToAiApp, gitRepo, "Liest Repository-Inhalte", "Git/File I/O")
+Rel(repoToAiApp, fileSystem, "Schreibt Markdown-Datei", "File I/O")
+Rel(repoToAiApp, configFiles, "Liest Konfiguration und Ignore-Patterns", "File I/O")
+Rel(repoToAiApp, clipboard, "Kopiert Output in Zwischenablage", "System API")
+Rel(repoToAiApp, browser, "Öffnet AI-Services", "webbrowser module")
+Rel(repoToAiApp, developer, "Stdout/Stderr Ausgabe", "Terminal")
 
 Rel(browser, chatgpt, "Navigiert zu chat.openai.com", "HTTPS")
 Rel(browser, claude, "Navigiert zu claude.ai", "HTTPS")
@@ -35,7 +35,7 @@ Rel(developer, chatgpt, "Fügt Repo-Content ein und chattet", "Web UI")
 Rel(developer, claude, "Fügt Repo-Content ein und chattet", "Web UI")
 Rel(developer, gemini, "Fügt Repo-Content ein und chattet", "Web UI")
 
-note right of repoToMdApp
+note right of repoToAiApp
   **Hauptfunktionen:**
   - Repository-Scanning
   - Intelligente Datei-Filterung
