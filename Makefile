@@ -1,4 +1,4 @@
-.PHONY: help setup install build clean test lint format docs run demo validate all ci
+.PHONY: help setup install build clean test lint format docs run demo validate all ci all-checks
 
 # =============================================================================
 # HELP & INFO
@@ -55,6 +55,7 @@ format-check:  ## Check code formatting without changes
 lint:  ## Run linting (flake8 + mypy)
 	poetry run flake8 src/ tests/
 	poetry run mypy src/repo2md/
+
 
 # =============================================================================
 # TESTING
@@ -149,6 +150,13 @@ ci:  ## Run CI checks locally (format-check, lint, test)
 	make lint
 	make test
 	@echo "✓ Local CI checks passed"
+
+all-checks:  ## Run all quality checks (format-check, lint, test)
+	@echo "Running all quality checks..."
+	make format-check
+	make lint
+	make test
+	@echo "✓ All checks passed"
 
 # =============================================================================
 # COMPLETE WORKFLOWS
