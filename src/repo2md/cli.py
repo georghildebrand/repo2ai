@@ -1,5 +1,5 @@
 """
-Command line interface for repo2md.
+Command line interface for repo2md with browser automation.
 """
 
 import argparse
@@ -9,22 +9,23 @@ from typing import List
 
 from .core import scan_repository, generate_markdown
 from .output import handle_output
+from .browser import open_ai_chat
 
 
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser."""
     parser = argparse.ArgumentParser(
         prog="repo2md",
-        description="Export Git repository contents to structured Markdown",
+        description="Export Git repository contents to structured Markdown and optionally open AI chat",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  repo2md .                           # Export current directory to stdout
-  repo2md ./project --output docs.md # Export to file
-  repo2md . --clipboard               # Copy to clipboard
-  repo2md . --stdout --clipboard      # Both stdout and clipboard
-  repo2md . --exclude-meta-files      # Exclude README, LICENSE, etc.
-  repo2md . --max-file-size 500000    # Limit file size to 500KB
+  repo2md .                                    # Export current directory to stdout
+  repo2md ./project --output docs.md          # Export to file
+  repo2md . --clipboard                       # Copy to clipboard
+  repo2md . --open-chat chatgpt               # Copy to clipboard and open ChatGPT
+  repo2md . --open-chat claude --prompt "Analyze this code"  # Open Claude with prompt
+  repo2md . --chat-all --prompt "Review this" # Try all AI services
         """,
     )
 
@@ -45,6 +46,28 @@ Examples:
         "-s",
         action="store_true",
         help="Output to stdout (default if no other output specified)",
+    )
+
+    # AI Chat options
+    chat_group = parser.add_argument_group("AI chat options")
+    chat_group.add_argument(
+        "--open-chat",
+        choices=["chatgpt", "claude", "gemini"],
+        help="Open AI chat service with repo content",
+    )
+    chat_group.add_argument(
+        "--chat-all",
+        action="store_true",
+        help="Try to open all available AI services",
+    )
+    chat_group.add_argument(
+        "--prompt",
+        help="Initial prompt to send with the repo content",
+    )
+    chat_group.add_argument(
+        "--browser",
+        default="default",
+        help="Browser to use (default, chrome, firefox, safari, edge)",
     )
 
     # Filtering options
@@ -97,6 +120,14 @@ def validate_arguments(args: argparse.Namespace) -> None:
         print("Error: Max file size must be positive", file=sys.stderr)
         sys.exit(1)
 
+    # Validate chat options
+    if args.prompt and not (args.open_chat or args.chat_all):
+        print("Warning: --prompt specified but no chat service selected. Use --open-chat or --chat-all", file=sys.stderr)
+
+    if (args.open_chat or args.chat_all) and not args.clipboard:
+        print("Info: Enabling clipboard mode for AI chat integration", file=sys.stderr)
+        args.clipboard = True
+
     # Check output file parent directory
     if args.output:
         output_path = Path(args.output)
@@ -119,12 +150,6 @@ def process_ignore_patterns(args: argparse.Namespace) -> List[str]:
     # Add patterns from --exclude-meta
     if args.exclude_meta:
         patterns.extend(args.exclude_meta)
-
-    # Handle --include-meta (remove from exclude patterns)
-    if args.include_meta and args.exclude_meta_files:
-        # This is a bit complex - we need to modify the exclude_meta_files behavior
-        # For now, we'll handle this in the core module
-        pass
 
     return patterns
 
@@ -172,12 +197,28 @@ def main() -> None:
             output_file=args.output,
             to_clipboard=args.clipboard,
             to_stdout=args.stdout,
+            prompt=args.prompt if (args.open_chat or args.chat_all) else None,  # Nur bei AI-Chat
         )
+
+        # Open AI chat if requested
+        if args.open_chat or args.chat_all:
+            print("Opening AI chat...", file=sys.stderr)
+
+            services = []
+            if args.chat_all:
+                services = ["chatgpt", "claude", "gemini"]
+            else:
+                services = [args.open_chat]
+
+            success = open_ai_chat(services=services, prompt=args.prompt, browser=args.browser, verbose=args.verbose)
+
+            if not success:
+                print("Warning: Could not open any AI chat service", file=sys.stderr)
 
         # Print summary
         file_count = len(scan_result.files)
         size_mb = scan_result.total_size / (1024 * 1024)
-        print(f" Processed {file_count} files ({size_mb:.2f} MB)", file=sys.stderr)
+        print(f"✓ Processed {file_count} files ({size_mb:.2f} MB)", file=sys.stderr)
 
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)

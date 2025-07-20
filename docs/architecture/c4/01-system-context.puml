@@ -1,25 +1,39 @@
 @startuml C4_Level1_repo2md
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
-title System Context Diagram - Repo2md Tool
+title System Context Diagram - Repo2md Tool (Updated)
 
-Person(developer, "Developer", "Entwickler der das Repository dokumentieren möchte")
+Person(developer, "Developer", "Entwickler der das Repository dokumentieren und mit AI analysieren möchte")
 
 System_Boundary(repoToMd, "Repo2md System") {
-    System(repoToMdApp, "Repo2md CLI", "Python-Anwendung die Repository-Inhalte in Markdown exportiert")
+    System(repoToMdApp, "Repo2md CLI", "Python-Anwendung die Repository-Inhalte in Markdown exportiert und AI-Chat Integration bietet")
 }
 
 System_Ext(gitRepo, "Git Repository", "Lokales oder Remote Git-Repository mit Projektdateien")
 System_Ext(fileSystem, "File System", "Lokales Dateisystem für Ausgabe und Konfiguration")
 System_Ext(configFiles, "Config Files", "Configuration files (.gitignore, .github/workflows, .crossnote/)")
 System_Ext(clipboard, "System Clipboard", "Systemzwischenablage für direktes Kopieren")
+System_Ext(browser, "Web Browser", "Browser für AI-Chat Integration")
+
+System_Ext(chatgpt, "ChatGPT", "OpenAI ChatGPT Service")
+System_Ext(claude, "Claude", "Anthropic Claude Service")
+System_Ext(gemini, "Gemini", "Google Gemini Service")
 
 Rel(developer, repoToMdApp, "Führt CLI-Kommandos aus", "CLI")
 Rel(repoToMdApp, gitRepo, "Liest Repository-Inhalte", "Git/File I/O")
 Rel(repoToMdApp, fileSystem, "Schreibt Markdown-Datei", "File I/O")
 Rel(repoToMdApp, configFiles, "Liest Konfiguration und Ignore-Patterns", "File I/O")
 Rel(repoToMdApp, clipboard, "Kopiert Output in Zwischenablage", "System API")
+Rel(repoToMdApp, browser, "Öffnet AI-Services", "webbrowser module")
 Rel(repoToMdApp, developer, "Stdout/Stderr Ausgabe", "Terminal")
+
+Rel(browser, chatgpt, "Navigiert zu chat.openai.com", "HTTPS")
+Rel(browser, claude, "Navigiert zu claude.ai", "HTTPS")
+Rel(browser, gemini, "Navigiert zu gemini.google.com", "HTTPS")
+
+Rel(developer, chatgpt, "Fügt Repo-Content ein und chattet", "Web UI")
+Rel(developer, claude, "Fügt Repo-Content ein und chattet", "Web UI")
+Rel(developer, gemini, "Fügt Repo-Content ein und chattet", "Web UI")
 
 note right of repoToMdApp
   **Hauptfunktionen:**
@@ -29,6 +43,8 @@ note right of repoToMdApp
   - CLI-Interface
   - Flexible Output-Optionen
   - Clipboard-Integration
+  - **NEU: AI-Chat Integration**
+  - **NEU: Browser-Automation**
 end note
 
 note left of gitRepo
@@ -51,7 +67,19 @@ note top of clipboard
   - Datei schreiben (--output)
   - Clipboard kopieren (--clipboard)
   - Stdout ausgeben (--stdout)
+  - **NEU: Auto-Copy für AI-Chat**
   - Kombinierbar
+end note
+
+note right of browser
+  **AI-Chat Integration:**
+  - Automatisches Browser-Öffnen
+  - Unterstützte Services:
+    • ChatGPT (chat.openai.com)
+    • Claude (claude.ai)
+    • Gemini (gemini.google.com)
+  - Custom Prompts
+  - Multi-Service Support
 end note
 
 @enduml

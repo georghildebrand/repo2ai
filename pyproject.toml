@@ -5,15 +5,33 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "repo2md"
 version = "0.1.1"
-description = "Export Git repository contents to structured Markdown"
-authors = ["Georg Hildebrand"]
+description = "Export Git repository contents to structured Markdown with AI chat integration"
+authors = ["Georg Hildebrand <your-email@example.com>"]  # Add email
 readme = "README.md"
 license = "MIT"
+homepage = "https://github.com/georghildebrand/Repo2Markdown"
+repository = "https://github.com/georghildebrand/Repo2Markdown"
+documentation = "https://github.com/georghildebrand/Repo2Markdown#readme"
+keywords = ["markdown", "documentation", "git", "repository", "export", "ai-chat"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Text Processing :: Markup :: Markdown",
+]
 packages = [{include = "repo2md", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 pyperclip = "^1.8.0"
+twine = "^6.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4"
@@ -27,47 +45,5 @@ types-pyperclip = "^1.9.0"
 repo2md = "repo2md.cli:main"
 
 [tool.poetry.urls]
-Homepage = "https://github.com/georghildebrand/Repo2Markdown"
-Repository = "https://github.com/georghildebrand/Repo2Markdown"
-
-[tool.black]
-line-length = 180
-target-version = ["py311"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-strict_equality = true
-
-[tool.coverage.run]
-source = ["src"]
-omit = ["tests/*"]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "if self.debug:",
-    "if settings.DEBUG",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if 0:",
-    "if __name__ == .__main__.:"
-]
+"Bug Tracker" = "https://github.com/georghildebrand/Repo2Markdown/issues"
+"Changelog" = "https://github.com/georghildebrand/Repo2Markdown/releases"

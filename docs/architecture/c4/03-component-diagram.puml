@@ -1,14 +1,14 @@
 @startuml C4_Level3_repo2md
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
-title Component Diagram - Core Module Internal Structure
+title Component Diagram - Core Module Internal Structure (Updated)
 
 Person(developer, "Developer", "User of the CLI tool")
 
 System_Boundary(repoToMd, "Repo2md System") {
     Container_Boundary(cli, "CLI Module") {
-        Component(argparser, "Argument Parser", "argparse", "Parses command line arguments")
-        Component(validator, "Argument Validator", "Python", "Validates input parameters")
+        Component(argparser, "Argument Parser", "argparse", "Parses command line arguments including AI chat options")
+        Component(validator, "Argument Validator", "Python", "Validates input parameters and AI chat settings")
         Component(processor, "Pattern Processor", "Python", "Processes ignore patterns")
     }
 
@@ -26,11 +26,22 @@ System_Boundary(repoToMd, "Repo2md System") {
         Component(clipboard, "Clipboard Handler", "pyperclip", "Copies to system clipboard")
         Component(stdout, "Stdout Handler", "sys.stdout", "Outputs to terminal")
     }
+
+    Container_Boundary(browser, "Browser Module") {
+        Component(aiServices, "AI Service URLs", "dict mapping", "Maps service names to URLs")
+        Component(browserLauncher, "Browser Launcher", "webbrowser", "Opens URLs in system browser")
+        Component(promptHandler, "Prompt Handler", "string processing", "Processes user prompts for AI services")
+        Component(chatController, "Chat Controller", "orchestration", "Coordinates AI chat workflow")
+    }
 }
 
 System_Ext(gitRepo, "Git Repository", "Local Git repository")
 System_Ext(fileSystem, "File System", "Local file system")
 System_Ext(systemClipboard, "System Clipboard", "OS clipboard")
+System_Ext(webBrowser, "Web Browser", "System web browser")
+System_Ext(chatgpt, "ChatGPT", "chat.openai.com")
+System_Ext(claude, "Claude", "claude.ai")
+System_Ext(gemini, "Gemini", "gemini.google.com")
 
 ' CLI internal relationships
 Rel(argparser, validator, "Validates parsed args")
@@ -52,12 +63,27 @@ Rel(generator, filewriter, "Writes markdown content")
 Rel(generator, clipboard, "Copies markdown content")
 Rel(generator, stdout, "Outputs markdown content")
 
+' CLI to Browser (NEW)
+Rel(validator, chatController, "Triggers AI chat if requested")
+Rel(chatController, clipboard, "Ensures content is copied")
+Rel(chatController, promptHandler, "Processes user prompt")
+Rel(chatController, aiServices, "Gets service URLs")
+Rel(chatController, browserLauncher, "Opens browser with URLs")
+
+' Browser internal relationships (NEW)
+Rel(promptHandler, chatController, "Returns processed prompt")
+Rel(aiServices, browserLauncher, "Provides URLs to open")
+
 ' External interactions
 Rel(scanner, gitRepo, "git ls-files", "subprocess")
 Rel(scanner, fileSystem, "Reads file contents", "File I/O")
 Rel(gitignore, fileSystem, "Reads .gitignore", "File I/O")
 Rel(filewriter, fileSystem, "Writes output file", "File I/O")
 Rel(clipboard, systemClipboard, "System API call", "pyperclip")
+Rel(browserLauncher, webBrowser, "Opens URLs", "webbrowser.open()")
+Rel(webBrowser, chatgpt, "Navigates to ChatGPT", "HTTPS")
+Rel(webBrowser, claude, "Navigates to Claude", "HTTPS")
+Rel(webBrowser, gemini, "Navigates to Gemini", "HTTPS")
 
 note right of scanner
   **Scanning Process:**
@@ -84,6 +110,29 @@ note left of detector
   • Special file names
   • 25+ supported languages
   • Fallback to generic
+end note
+
+note right of chatController
+  **AI Chat Workflow:**
+  1. Validate chat options
+  2. Ensure clipboard copy
+  3. Process custom prompt
+  4. Get service URLs
+  5. Open browser(s)
+  6. Display instructions
+
+  **Supported Services:**
+  • ChatGPT (chat.openai.com)
+  • Claude (claude.ai)
+  • Gemini (gemini.google.com)
+end note
+
+note bottom of aiServices
+  **Service Mapping:**
+  • chatgpt → chat.openai.com
+  • claude → claude.ai
+  • gemini → gemini.google.com
+  • Extensible for new services
 end note
 
 @enduml

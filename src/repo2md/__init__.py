@@ -15,6 +15,7 @@ __email__ = "noreply@github.com"
 
 from .core import RepoFile, ScanResult, scan_repository, generate_markdown
 from .output import handle_output
+from .browser import open_ai_chat
 
 __all__ = [
     "RepoFile",
@@ -22,4 +23,5 @@ __all__ = [
     "scan_repository",
     "generate_markdown",
     "handle_output",
+    "open_ai_chat",
 ]

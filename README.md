@@ -1,457 +1,312 @@
-# repo2md
+# Repo2Markdown
 
-A minimal Python CLI tool that exports Git repository contents to structured Markdown files. Perfect for creating comprehensive repository documentation, code reviews, or feeding codebases to AI tools.
+[![CI/CD Pipeline](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/ci.yml)
+[![Documentation](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/docs.yml/badge.svg)](https://github.com/georghildebrand/Repo2Markdown/actions/workflows/docs.yml)
+[![Development Status](https://img.shields.io/badge/status-development-orange.svg)](https://github.com/georghildebrand/Repo2Markdown)
 
-## Features
+Export Git repository contents to structured Markdown with **AI Chat Integration**. Perfect for code analysis, documentation, and getting AI assistance with your projects.
 
-- **Git Integration**: Automatically scans Git-tracked files using `git ls-files`
-- **Smart Filtering**: Respects `.gitignore` patterns and excludes binary files
-- **Language Detection**: Automatically detects 25+ programming languages for syntax highlighting
-- **Multiple Output Options**: File, clipboard, or stdout (combinable)
-- **Configurable Filtering**: Custom ignore patterns, file size limits, meta file handling
-- **Cross-Platform**: Works on Windows, macOS, and Linux
-- **Minimal Dependencies**: Only uses Python stdlib + `pyperclip` for clipboard functionality
-
-## Todo
-
-[] Make pip package
-[] Cleanup and remove clutter
-[] Scan Todos in code
-
-## Installation
-
-### From Source
+## 🚀 Quick Start
 
 ```bash
-pip install git+https://github.com/georghildebrand/Repo2Markdown.git@main
-```
-
-Or from local clone:
-
-```bash
+# Install from source (no PyPI package yet)
 git clone https://github.com/georghildebrand/Repo2Markdown.git
 cd Repo2Markdown
 make install
+
+# Basic export
+poetry run repo2md .
+
+# Copy to clipboard and open ChatGPT
+poetry run repo2md . --open-chat chatgpt
+
+# Open Claude with a specific prompt
+poetry run repo2md . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
+
+# Try all AI services with a prompt
+poetry run repo2md . --chat-all --prompt "Review this repository structure"
 ```
 
-### Development Setup
+## ✨ Features
+
+- **📁 Smart Repository Scanning** - Respects .gitignore, filters binary files, handles large codebases
+- **🤖 AI Chat Integration** - Automatic browser integration with ChatGPT, Claude, and Gemini
+- **📋 Multiple Output Options** - File, clipboard, stdout, or combinations
+- **🎯 Intelligent Filtering** - Configurable ignore patterns, file size limits, meta file handling
+- **🔍 Language Detection** - Syntax highlighting for 25+ programming languages
+- **⚡ Git Integration** - Only includes tracked files, respects Git ignore patterns
+
+## 🤖 AI Chat Integration
+
+repo2md now supports automatic browser integration with popular AI services, making it easy to share your repository with AI assistants for code analysis, review, and assistance.
+
+### Quick Start with AI Chat
+
 ```bash
-# Full development environment
-make dev-setup
+# Copy repo to clipboard and open ChatGPT
+poetry run repo2md . --open-chat chatgpt
 
-# Or manually
-poetry install --with dev
-poetry shell
+# Open Claude with a specific prompt
+poetry run repo2md . --open-chat claude --prompt "Please analyze this codebase and suggest improvements"
+
+# Try all AI services with a prompt
+poetry run repo2md . --chat-all --prompt "Review this repository structure"
+
+# Use specific browser
+poetry run repo2md . --open-chat chatgpt --browser firefox
 ```
 
-### Build and Install Wheel
-```bash
-make install-wheel
-```
-
-## Quick Start
-
-```bash
-# Export current directory to stdout
-repo2md .
-
-# Export to a file
-repo2md . --output my-repo.md
-
-# Copy to clipboard
-repo2md . --clipboard
-
-# Exclude README, LICENSE, etc.
-repo2md . --exclude-meta-files
-
-# Combine outputs
-repo2md . --output docs.md --clipboard
-```
-
-## Usage
+### AI Chat Options
 
 ```
-repo2md [PATH] [OPTIONS]
-
-Arguments:
-  PATH                  Path to repository (default: current directory)
-
-Output Options:
-  --output, -o PATH     Write to file
-  --clipboard, -c       Copy to clipboard
-  --stdout, -s          Output to stdout (default)
-
-Debugging Options:
-  -v, --verbose         Show lists of all files included and all files ignored (printed to stderr for debugging)
-
-Filtering Options:
-  --ignore PATTERN      Additional ignore patterns (repeatable)
-  --exclude-meta-files  Exclude README, LICENSE, .gitignore, etc.
-  --max-file-size SIZE  Maximum file size in bytes (default: 1MB)
-  --include-meta FILES  Include specific meta files
-  --exclude-meta FILES  Exclude specific meta files
+--open-chat SERVICE       Open specific AI service (chatgpt, claude, gemini)
+--chat-all                Try to open all available AI services
+--prompt TEXT             Initial prompt to use with the AI service
+--browser BROWSER         Browser to use (default, chrome, firefox, safari, edge)
 ```
 
-## Examples
+### Supported AI Services
+
+- **ChatGPT** (`chatgpt`) - OpenAI's ChatGPT at chat.openai.com
+- **Claude** (`claude`) - Anthropic's Claude at claude.ai
+- **Gemini** (`gemini`) - Google's Gemini at gemini.google.com
+
+### How It Works
+
+1. **Repository Export**: Scans and exports your repository to markdown
+2. **Clipboard Copy**: Automatically copies the content to your clipboard
+3. **Browser Launch**: Opens the specified AI service in a new browser tab
+4. **Instructions**: Shows helpful instructions for pasting content and adding your prompt
+
+## 📖 Usage Examples
 
 ### Basic Export
 ```bash
-# Export current repository
-repo2md .
-
-# Export specific directory
-repo2md ./my-project
-
-# Export with custom output path
-repo2md . --output repository-export.md
+poetry run repo2md .                                    # Export current directory to stdout
+poetry run repo2md ./project --output docs.md          # Export to file
+poetry run repo2md . --clipboard                       # Copy to clipboard
 ```
 
-### Output Options
+### AI Chat Integration
 ```bash
-# Copy to clipboard for pasting elsewhere
-repo2md . --clipboard
+# Code Analysis
+poetry run repo2md . --open-chat claude --prompt "Analyze this code for potential security vulnerabilities"
 
-# Both file and clipboard
-repo2md . --output backup.md --clipboard
+# Architecture Review
+poetry run repo2md . --open-chat chatgpt --prompt "Review the architecture and suggest improvements"
 
-# Output to stdout for piping
-repo2md . --stdout | less
+# Documentation Help
+poetry run repo2md . --open-chat gemini --prompt "Help me write better documentation for this project"
+
+# Quick Questions
+poetry run repo2md . --chat-all --prompt "Where are logs written in this application?"
 ```
 
 ### Advanced Filtering
 ```bash
-# Exclude meta files (README, LICENSE, etc.)
-repo2md . --exclude-meta-files
+# Exclude sensitive files when sharing with AI
+poetry run repo2md . --open-chat claude --ignore "*.env" --ignore "secrets/*" --prompt "Review this code"
+
+# Large repositories with size limits
+poetry run repo2md . --max-file-size 50000 --exclude-meta-files
 
 # Custom ignore patterns
-repo2md . --ignore "*.log" --ignore "temp/*" --ignore "*.tmp"
-
-# Limit file size (500KB max)
-repo2md . --max-file-size 500000
-
-# Include only specific files, ignore others
-repo2md . --exclude-meta-files --include-meta README.md
-
-# Complex filtering for AI tools
-repo2md . --exclude-meta-files --ignore "*.test.js" --ignore "dist/*" --max-file-size 100000 --clipboard
-
-# Debug what files are included/ignored
-repo2md . --verbose --ignore "*.log" --exclude-meta-files
+poetry run repo2md . --ignore "*.log" --ignore "temp/*" --ignore "*.tmp"
 ```
 
-## Output Format
+## 🛠️ Installation
 
-The generated Markdown includes:
+> **Note**: This project is currently in development. No PyPI package is available yet.
 
-1. **Repository Summary**: File count, total size, root path
-2. **File Structure**: Directory tree organized by folders
-3. **File Contents**: Each file with syntax highlighting and metadata
-
-Example output structure:
-```markdown
-# MyProject
-
-## Repository Summary
-- **Files:** 15
-- **Total Size:** 0.25 MB
-- **Repository Root:** `/path/to/MyProject`
-
-## File Structure
-
-### Root Directory
-- main.py
-- requirements.txt
-
-### src/
-- __init__.py
-- core.py
-
-## File Contents
-
-### main.py
-**Size:** 1024 bytes
-**Language:** python
-
-```python
-def main():
-    print("Hello World")
-```
-
-## Development
-
-This project uses **Poetry** for dependency management and **Make** for build automation:
-
-### Quick Development Commands
-
+### From Source (Current Method)
 ```bash
-# Setup development environment
-make dev-setup              # Install deps + setup pre-commit hooks
+git clone https://github.com/georghildebrand/Repo2Markdown.git
+cd Repo2Markdown
+make install
 
-# Daily development
-make install                 # Install/update dependencies
-make format                  # Format code with Black
-make lint                    # Run flake8 + mypy
-make test                    # Run tests
-make test-cov                # Run tests with coverage
-
-# Quality assurance
-make all-checks              # Run format-check + lint + test
-make ci-local                # Full CI pipeline simulation
-
-# Building and packaging
-make build                   # Build wheel + source dist
-make install-wheel           # Build and install wheel locally
-make clean                   # Clean build artifacts
-
-# Tool execution
-make run                     # Run tool on current directory
-make run-example             # Generate example_output.md
-make run-help                # Show CLI help
-```
-
-### Testing Commands
-
-```bash
-# Run specific test files
-poetry run pytest tests/test_core.py -v
-poetry run pytest tests/test_cli.py -v
-
-# Test with coverage and HTML report
-make test-cov
-
-# Integration testing
-make run-example
+# Run with poetry
 poetry run repo2md --help
 ```
 
-### Code Quality
-
+### Development Setup
 ```bash
-# Check formatting (without changing files)
-make format-check
-
-# Format code
-make format
-
-# Run linting
-make lint
-
-# Run all quality checks
-make all-checks
+git clone https://github.com/georghildebrand/Repo2Markdown.git
+cd Repo2Markdown
+make setup  # Complete development environment
 ```
 
-## Supported Languages
+### Future PyPI Installation (Planned)
+```bash
+# Will be available after first release
+pip install repo2md
+```
 
-The tool automatically detects and provides syntax highlighting for:
+## 📋 CLI Options
 
-**Programming Languages:** Python, JavaScript, TypeScript, Java, C/C++, C#, Go, Rust, PHP, Ruby, Swift, Kotlin, Scala
+### Basic Options
+```
+positional arguments:
+  path                  Path to repository (default: current directory)
 
-**Web Technologies:** HTML, CSS, SCSS/Sass, JSX, TSX
+output options:
+  --output, -o          Output file path
+  --clipboard, -c       Copy output to clipboard
+  --stdout, -s          Output to stdout (default if no other output specified)
+```
 
-**Data/Config:** JSON, YAML, TOML, XML, SQL, INI
+### AI Chat Options
+```
+AI chat options:
+  --open-chat           Open specific AI service (chatgpt, claude, gemini)
+  --chat-all            Try to open all available AI services
+  --prompt              Initial prompt to send with the repo content
+  --browser             Browser to use (default, chrome, firefox, safari, edge)
+```
 
-**Scripts/Shell:** Bash, Zsh, Fish, PowerShell
+### Filtering Options
+```
+filtering options:
+  --ignore              Additional ignore patterns (can be used multiple times)
+  --exclude-meta-files  Exclude meta files like .gitignore, README, LICENSE
+  --max-file-size       Maximum file size in bytes (default: 1MB)
+  --include-meta        Include specific meta files (overrides --exclude-meta-files)
+  --exclude-meta        Exclude specific meta files
+  -v, --verbose         Show lists of all files included and ignored
+```
 
-**Documentation:** Markdown, Text
+## 🏗️ Architecture
 
-**Special Files:** Dockerfile, Makefile, .gitignore
-
-## Architecture
-
-The tool follows a clean, modular design based on C4 architecture principles:
+The project follows a clean, modular architecture with clear separation of concerns:
 
 ### System Overview
-- **Core Module**: Repository scanning, filtering, and Markdown generation
-- **CLI Module**: Command-line interface and argument handling
-- **Output Module**: File, clipboard, and stdout output handling
+```
+┌─────────────┐    ┌──────────────┐    ┌─────────────┐
+│   Developer │───▶│  Repo2md CLI │───▶│ AI Services │
+└─────────────┘    └──────────────┘    └─────────────┘
+                           │
+                           ▼
+                   ┌──────────────┐
+                   │ Git Repository│
+                   └──────────────┘
+```
 
-### Key Design Decisions
-- **Minimal Dependencies**: Only `pyperclip` for clipboard functionality
-- **Standard Library Focus**: Uses `subprocess`, `fnmatch`, `argparse` instead of heavy dependencies
-- **Git Integration**: Leverages `git ls-files` for accurate file discovery
-- **Binary File Detection**: Automatically excludes binary files from output
+### Core Modules
+
+- **CLI Module**: Command-line interface with argument parsing and validation
+- **Core Module**: Repository scanning, filtering, and Markdown generation
+- **Output Module**: File writing, clipboard integration, stdout handling
+- **Browser Module**: AI chat integration and browser automation
 
 ### Architecture Diagrams
 
-The system architecture is documented using C4 diagrams:
+The project includes comprehensive C4 model diagrams:
 
-#### System Context Diagram
-![System Context Diagram](docs/architecture/images/C4_Level1_repo2md.png)
+- **System Context**: High-level system interactions
+- **Container Diagram**: Internal module architecture
+- **Component Diagram**: Detailed component relationships
+- **Development Workflow**: Development and CI/CD processes
 
-*High-level system interactions showing how developers use the repo2md CLI tool.*
+Generate diagrams with: `make docs`
 
-#### Container Diagram
-![Container Diagram](docs/architecture/images/C4_Level2_repo2md.png)
+## 🔧 Development
 
-*Internal system structure showing the CLI, Core, and Output modules.*
-
-#### Component Diagram
-![Component Diagram](docs/architecture/images/C4_Level3_repo2md.png)
-
-*Detailed component breakdown of the Core module's internal structure.*
-
-> **📝 Note:** These diagrams are automatically generated from the PlantUML source files in `docs/architecture/c4/` and updated by our CI/CD pipeline.
->
-> **🔧 Local Rendering:** Use the [PlantUML VS Code extension](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml) or [online PlantUML server](http://www.plantuml.com/plantuml/uml/) to view/edit the source diagrams.
-
-### Rendering Diagrams Locally
-
-```bash
-# Install PlantUML (macOS)
-brew install plantuml
-
-# Install PlantUML (Ubuntu/Debian)
-sudo apt-get install plantuml
-
-# Render diagrams to PNG
-make render-diagrams
-
-# Generate all documentation
-make docs
-```
-
-## Requirements
-
-- **Python 3.11+** (uses modern type hints)
-- **Git** (for repository scanning)
-- **Poetry** (for dependency management)
-- **pyperclip** (for clipboard functionality - automatically installed)
-
-## Performance
-
-- **Fast scanning**: Leverages Git for efficient file discovery
-- **Memory efficient**: Processes files individually, not all in memory
-- **Smart filtering**: Multiple layers of filtering reduce processing overhead
-- **Binary detection**: Quick binary file detection prevents unnecessary processing
-
-Typical performance:
-- Small projects (< 100 files): < 1 second
-- Medium projects (100-1000 files): 1-5 seconds
-- Large projects (1000+ files): 5-30 seconds (depending on file sizes and filtering)
-
-## Troubleshooting
-
-### Common Issues
-
-**"Git not found" or empty output:**
-```bash
-# Make sure you're in a Git repository
-git status
-
-# Or scan directory without Git integration
-repo2md . --ignore ".git/*"
-```
-
-**"Pyperclip not available" error:**
-```bash
-# Install clipboard support
-make install
-# or
-poetry install --with dev
-```
-
-**Large output files:**
-```bash
-# Reduce file size with filtering
-repo2md . --exclude-meta-files --max-file-size 50000 --ignore "*.log" --ignore "dist/*"
-```
-
-**Development environment issues:**
-```bash
-# Reset development environment
-make clean
-make dev-setup
-
-# Check dependencies
-poetry check
-poetry show --tree
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Set up development environment: `make dev-setup`
-4. Make your changes with tests
-5. Run quality checks: `make all-checks`
-6. Commit your changes: `git commit -m 'Add amazing feature'`
-7. Push to the branch: `git push origin feature/amazing-feature`
-8. Submit a pull request
+### Prerequisites
+- Python 3.11+
+- Poetry for dependency management
+- Make for task automation
+- PlantUML for diagram generation (optional)
 
 ### Development Workflow
 
-The project uses **Makefile-based workflows** for both local development and CI/CD:
+1. **Setup Development Environment**
+   ```bash
+   git clone https://github.com/georghildebrand/Repo2Markdown.git
+   cd Repo2Markdown
+   make setup  # Install dependencies + dev tools
+   ```
 
-- **Local Development**: All commands use `make` targets for consistency
-- **GitHub Actions**: CI workflows use the same `make` targets
-- **No Discrepancy**: What runs locally is exactly what runs in CI
+2. **Development Tasks**
+   ```bash
+   make format     # Format code with Black
+   make lint       # Run linting (flake8 + mypy)
+   make test       # Run tests
+   make test-cov   # Run tests with coverage
+   ```
 
-#### CI/CD Pipeline
+3. **Quality Assurance**
+   ```bash
+   make ci         # Run all CI checks locally
+   make all        # Complete pipeline (format + lint + test + docs + build)
+   ```
 
-- **CI Pipeline** (`make ci-local`): Runs on every push and PR
-  - Tests on Python 3.11 and 3.12
-  - Code formatting and linting checks (`make all-checks`)
-  - Cross-platform integration tests (Ubuntu, Windows, macOS)
-  - Security scanning with safety and bandit
-  - Coverage reporting
+4. **Documentation**
+   ```bash
+   make docs       # Render PlantUML diagrams
+   ```
 
-- **Documentation** (`make docs`): Auto-updates on doc changes
-  - Renders PlantUML diagrams to PNG (`make render-diagrams`)
-  - Validates markdown links
-  - Workflow validation (`make validate-workflows`)
-
-- **Release Pipeline**: Triggered on version tags
-  - Publishes to PyPI automatically
-  - Creates GitHub releases with changelog
-  - Includes build artifacts
+5. **Testing & Demo**
+   ```bash
+   make run        # Demo on current directory
+   make demo       # Feature demonstration
+   make run-chat   # Test AI integration
+   ```
 
 ### Available Make Targets
 
-```bash
-make help                    # Show all available commands
-make install                 # Install dependencies
-make install-dev             # Development installation
-make install-wheel           # Build and install wheel
-make test                    # Run tests
-make test-cov                # Run tests with coverage
-make lint                    # Run linting (flake8 + mypy)
-make format                  # Format code with Black
-make format-check            # Check formatting without changes
-make all-checks              # Run format-check + lint + test
-make clean                   # Clean build artifacts
-make build                   # Build package
-make run                     # Run CLI on current directory
-make run-help                # Show CLI help
-make run-example             # Generate example output
-make dev-setup               # Set up development environment
-make render-diagrams         # Render PlantUML diagrams
-make docs                    # Generate all documentation
-make validate-workflows      # Validate GitHub Actions
-make ci-local                # Run complete CI pipeline locally
-make all                     # Run everything (format, lint, test, docs, build)
-```
+| Target | Description |
+|--------|-------------|
+| `make setup` | Complete development environment setup |
+| `make install` | Install dependencies only |
+| `make format` | Format code with Black |
+| `make lint` | Run linting (flake8 + mypy) |
+| `make test` | Run tests |
+| `make test-cov` | Run tests with coverage |
+| `make docs` | Render PlantUML diagrams |
+| `make ci` | Run CI checks locally |
+| `make all` | Complete pipeline |
+| `make clean` | Clean build artifacts |
 
-## License
+### Code Quality Standards
 
-MIT License - see [LICENSE](LICENSE) file for details.
+- **Code Formatting**: Black with 180 character line length
+- **Linting**: Flake8 for PEP8 compliance
+- **Type Checking**: MyPy with strict settings
+- **Testing**: Pytest with high coverage requirements
+- **Documentation**: Comprehensive docstrings and architecture diagrams
 
-## Related Projects
+## 🤝 Contributing
 
-- [GitHub's repository export tools](https://docs.github.com/en/repositories)
-- [Tree command](https://en.wikipedia.org/wiki/Tree_(command)) for directory visualization
-- [Sourcegraph](https://sourcegraph.com/) for code search and navigation
-- [DocToc](https://github.com/thlorenz/doctoc) for table of contents generation
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and add tests
+4. Run quality checks: `make ci`
+5. Commit your changes: `git commit -m 'Add amazing feature'`
+6. Push to the branch: `git push origin feature/amazing-feature`
+7. Open a Pull Request
 
-## Changelog
+### Contribution Guidelines
 
-### v0.1.0 (Current)
-- Initial release with Poetry-based dependency management
-- Core repository scanning functionality
-- Markdown export with syntax highlighting
-- Multiple output options (file, clipboard, stdout)
-- Smart filtering with .gitignore integration
-- Cross-platform support (Windows, macOS, Linux)
-- Comprehensive test suite with coverage reporting
-- Makefile-based development workflow
-- GitHub Actions CI/CD pipeline
-- Architecture documentation with C4 diagrams
+- Follow the existing code style (enforced by Black)
+- Add tests for new functionality
+- Update documentation for user-facing changes
+- Ensure all CI checks pass
+- Update architecture diagrams if adding new modules
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **PlantUML** for architecture diagram generation
+- **Poetry** for excellent dependency management
+- **GitHub Actions** for robust CI/CD
+- **AI Services** (OpenAI, Anthropic, Google) for making code analysis accessible
+
+## 🔗 Links
+
+- [GitHub Repository](https://github.com/georghildebrand/Repo2Markdown)
+- [Documentation](https://github.com/georghildebrand/Repo2Markdown/tree/main/docs)
+- [Architecture Diagrams](https://github.com/georghildebrand/Repo2Markdown/tree/main/docs/images)
+- [PyPI Package](https://pypi.org/project/repo2md/) *(Coming Soon)*
+

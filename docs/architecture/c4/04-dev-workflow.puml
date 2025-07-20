@@ -1,0 +1,125 @@
+@startuml DevWorkflow
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Development Workflow - Repo2md Project
+
+Person(developer, "Developer", "Contributor to repo2md project")
+
+System_Boundary(devEnv, "Development Environment") {
+    System(localRepo, "Local Repository", "Git repository with Poetry setup")
+    System(makeTargets, "Makefile Targets", "Automated development tasks")
+    System(poetryEnv, "Poetry Environment", "Dependency management and virtual env")
+}
+
+System_Boundary(codeQuality, "Code Quality Tools") {
+    System(black, "Black", "Code formatting")
+    System(flake8, "Flake8", "Linting (PEP8 + pyflakes)")
+    System(mypy, "MyPy", "Type checking")
+    System(pytest, "Pytest", "Testing framework")
+}
+
+System_Boundary(cicd, "CI/CD Pipeline") {
+    System(githubActions, "GitHub Actions", "Automated workflows")
+    System(codecov, "Codecov", "Coverage reporting")
+    System(releases, "GitHub Releases", "Release artifacts (PyPI ready)")
+}
+
+System_Boundary(docs, "Documentation") {
+    System(plantuml, "PlantUML", "Architecture diagrams")
+    System(markdown, "Markdown", "Documentation files")
+}
+
+' Development workflow
+Rel(developer, localRepo, "1. Clone & setup", "git clone")
+Rel(localRepo, poetryEnv, "2. Install deps", "poetry install")
+Rel(developer, makeTargets, "3. Use make targets", "make command")
+
+' Code quality workflow
+Rel(makeTargets, black, "Format code", "make format")
+Rel(makeTargets, flake8, "Lint code", "make lint")
+Rel(makeTargets, mypy, "Type check", "make lint")
+Rel(makeTargets, pytest, "Run tests", "make test")
+
+' Documentation workflow
+Rel(makeTargets, plantuml, "Render diagrams", "make docs")
+Rel(plantuml, docs, "Generate images", "PNG output")
+
+' CI/CD workflow
+Rel(developer, githubActions, "4. Push changes", "git push")
+Rel(githubActions, codeQuality, "Run quality checks", "CI pipeline")
+Rel(githubActions, codecov, "Upload coverage", "Coverage report")
+Rel(githubActions, releases, "Create releases", "On tag push (PyPI ready)")
+
+note right of makeTargets
+  **Key Make Targets:**
+
+  **Setup & Installation:**
+  • make setup (complete dev env)
+  • make install (dependencies only)
+  • make clean (cleanup artifacts)
+
+  **Code Quality:**
+  • make format (black formatting)
+  • make lint (flake8 + mypy)
+  • make test (pytest)
+  • make test-cov (with coverage)
+
+  **Development:**
+  • make run (demo on current dir)
+  • make run-chat (with AI integration)
+  • make demo (feature demonstration)
+
+  **Documentation:**
+  • make docs (render PlantUML)
+
+  **Complete Workflows:**
+  • make ci (format-check + lint + test)
+  • make all (format + lint + test + docs + build)
+end note
+
+note left of githubActions
+  **CI/CD Workflows:**
+
+  **ci.yml:**
+  • Test on Python 3.11, 3.12
+  • Linux + macOS integration tests
+  • Code quality checks
+  • Coverage reporting
+
+  **docs.yml:**
+  • Auto-render PlantUML diagrams
+  • Validate documentation links
+  • Commit rendered diagrams
+
+  **release.yml:**
+  • Build packages on tag push
+  • Create GitHub releases
+  • Upload build artifacts
+end note
+
+note bottom of developer
+  **Development Steps:**
+
+  1. **Setup:** git clone + make setup
+  2. **Develop:** Write code + tests
+  3. **Quality:** make ci (local checks)
+  4. **Document:** Update diagrams/docs
+  5. **Test:** make demo (functional test)
+  6. **Commit:** git commit + push
+  7. **Release:** git tag (creates release artifacts)
+
+  **Current Status:** Development phase
+  **PyPI Release:** Coming soon
+end note
+
+note top of codeQuality
+  **Quality Standards:**
+
+  • **Black:** Line length 180
+  • **Flake8:** PEP8 compliance
+  • **MyPy:** Strict type checking
+  • **Pytest:** High test coverage
+  • **Coverage:** Exclude test files
+end note
+
+@enduml

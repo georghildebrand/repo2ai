@@ -68,6 +68,16 @@ jobs:
         POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
       run: poetry publish
 
+    # Test PyPI publish first
+    - name: Publish to Test PyPI (optional)
+      env:
+        POETRY_REPOSITORIES_TESTPYPI_URL: https://test.pypi.org/legacy/
+        POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        poetry config repositories.testpypi https://test.pypi.org/legacy/
+        poetry publish -r testpypi
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-test')
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:

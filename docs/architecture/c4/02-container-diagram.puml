@@ -1,19 +1,22 @@
 @startuml C4_Level2_repo2md
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-title Container Diagram - Repo2md Internal Architecture
+title Container Diagram - Repo2md Internal Architecture (Updated)
 
 Person(developer, "Developer", "Nutzer des CLI-Tools")
 
 System_Boundary(repoToMd, "Repo2md System") {
-    Container(cli, "CLI Module", "Python argparse", "Kommandozeilen-Interface und Parameter-Parsing")
+    Container(cli, "CLI Module", "Python argparse", "Kommandozeilen-Interface und Parameter-Parsing inkl. AI-Chat Optionen")
     Container(core, "Core Module", "Python stdlib", "Repository-Scanning, Filterung und Markdown-Generierung")
     Container(output, "Output Module", "Python + pyperclip", "Ausgabe-Handling für File/Clipboard/Stdout")
+    Container(browser, "Browser Module", "Python webbrowser", "AI-Chat Integration und Browser-Automation")
 }
 
 System_Ext(gitRepo, "Git Repository", "Lokales Git-Repository")
 System_Ext(fileSystem, "File System", "Lokales Dateisystem")
 System_Ext(clipboard, "System Clipboard", "Systemzwischenablage")
+System_Ext(webBrowser, "Web Browser", "System Browser")
+System_Ext(aiServices, "AI Services", "ChatGPT, Claude, Gemini")
 
 ' User interactions
 Rel(developer, cli, "Führt Kommandos aus", "CLI")
@@ -21,6 +24,8 @@ Rel(developer, cli, "Führt Kommandos aus", "CLI")
 ' Internal component relationships
 Rel(cli, core, "Übergibt Parameter und startet Verarbeitung", "Function call")
 Rel(core, output, "Übergibt generierten Markdown", "Function call")
+Rel(cli, browser, "Startet AI-Chat Integration", "Function call")
+Rel(browser, output, "Triggert Clipboard-Copy", "Function call")
 
 ' External system interactions
 Rel(core, gitRepo, "Liest Repository-Struktur", "subprocess git + os.walk")
@@ -28,6 +33,8 @@ Rel(core, fileSystem, "Liest Dateiinhalte und .gitignore", "File I/O")
 Rel(output, fileSystem, "Schreibt Markdown-Datei", "File I/O")
 Rel(output, clipboard, "Kopiert Text", "pyperclip")
 Rel(output, developer, "Stdout-Ausgabe", "print()")
+Rel(browser, webBrowser, "Öffnet AI-Service URLs", "webbrowser.open()")
+Rel(webBrowser, aiServices, "Navigiert zu AI-Services", "HTTPS")
 
 note right of core
   **Core-Funktionen:**
@@ -47,6 +54,10 @@ note left of cli
   • --ignore <patterns>
   • --exclude-meta-files
   • --max-file-size <size>
+  • **NEU: --open-chat <service>**
+  • **NEU: --chat-all**
+  • **NEU: --prompt <text>**
+  • **NEU: --browser <browser>**
 end note
 
 note bottom of output
@@ -55,6 +66,21 @@ note bottom of output
   • Clipboard (pyperclip)
   • Stdout (pipes)
   • Kombinierbar
+  • **NEU: Auto-Clipboard für AI-Chat**
+end note
+
+note right of browser
+  **Browser-Integration:**
+  • AI-Service URLs
+  • Browser-Auswahl
+  • Prompt-Verarbeitung
+  • Multi-Service Support
+  • Fehlerbehandlung
+
+  **Unterstützte Services:**
+  • ChatGPT (chat.openai.com)
+  • Claude (claude.ai)
+  • Gemini (gemini.google.com)
 end note
 
 @enduml

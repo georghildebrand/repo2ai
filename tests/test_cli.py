@@ -91,14 +91,14 @@ class TestArgumentValidation(TestCase):
 
     def test_valid_directory(self):
         """Test validation of valid directory."""
-        args = argparse.Namespace(path=str(self.test_path), max_file_size=1024, output=None)
+        args = argparse.Namespace(path=str(self.test_path), max_file_size=1024, output=None, prompt=None, open_chat=None, chat_all=False, clipboard=False)
 
         # Should not raise exception
         validate_arguments(args)
 
     def test_nonexistent_directory(self):
         """Test validation of non-existent directory."""
-        args = argparse.Namespace(path="/nonexistent/path", max_file_size=1024, output=None)
+        args = argparse.Namespace(path="/nonexistent/path", max_file_size=1024, output=None, prompt=None, open_chat=None, chat_all=False, clipboard=False)
 
         with self.assertRaises(SystemExit):
             validate_arguments(args)
@@ -108,14 +108,14 @@ class TestArgumentValidation(TestCase):
         test_file = self.test_path / "test.txt"
         test_file.write_text("test")
 
-        args = argparse.Namespace(path=str(test_file), max_file_size=1024, output=None)
+        args = argparse.Namespace(path=str(test_file), max_file_size=1024, output=None, prompt=None, open_chat=None, chat_all=False, clipboard=False)
 
         with self.assertRaises(SystemExit):
             validate_arguments(args)
 
     def test_invalid_max_file_size(self):
         """Test validation of invalid max file size."""
-        args = argparse.Namespace(path=str(self.test_path), max_file_size=0, output=None)
+        args = argparse.Namespace(path=str(self.test_path), max_file_size=0, output=None, prompt=None, open_chat=None, chat_all=False, clipboard=False)
 
         with self.assertRaises(SystemExit):
             validate_arguments(args)
