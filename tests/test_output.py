@@ -74,7 +74,9 @@ class TestOutputHandling(TestCase):
         """Test clipboard output when pyperclip is unavailable."""
         with patch("sys.stderr", new_callable=StringIO):
             with self.assertRaises(SystemExit):
-                handle_output(content=self.test_content, to_clipboard=True, to_stdout=False)
+                handle_output(
+                    content=self.test_content, to_clipboard=True, to_stdout=False
+                )
 
     def test_multiple_outputs(self):
         """Test multiple output options."""
@@ -102,7 +104,9 @@ class TestOutputHandling(TestCase):
         output_file = Path(self.temp_dir) / "subdir" / "test.md"
 
         with patch("sys.stderr", new_callable=StringIO):
-            handle_output(content=self.test_content, output_file=output_file, to_stdout=False)
+            handle_output(
+                content=self.test_content, output_file=output_file, to_stdout=False
+            )
 
         self.assertTrue(output_file.exists())
         self.assertEqual(output_file.read_text(), self.test_content)
@@ -114,7 +118,9 @@ class TestOutputHandling(TestCase):
 
         with patch("sys.stderr", new_callable=StringIO):
             with self.assertRaises(SystemExit):
-                handle_output(content=self.test_content, output_file=output_file, to_stdout=False)
+                handle_output(
+                    content=self.test_content, output_file=output_file, to_stdout=False
+                )
 
 
 class TestDefaultFilename(TestCase):

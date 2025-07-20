@@ -91,14 +91,30 @@ class TestArgumentValidation(TestCase):
 
     def test_valid_directory(self):
         """Test validation of valid directory."""
-        args = argparse.Namespace(path=str(self.test_path), max_file_size=1024, output=None, prompt=None, open_chat=None, chat_all=False, clipboard=False)
+        args = argparse.Namespace(
+            path=str(self.test_path),
+            max_file_size=1024,
+            output=None,
+            prompt=None,
+            open_chat=None,
+            chat_all=False,
+            clipboard=False,
+        )
 
         # Should not raise exception
         validate_arguments(args)
 
     def test_nonexistent_directory(self):
         """Test validation of non-existent directory."""
-        args = argparse.Namespace(path="/nonexistent/path", max_file_size=1024, output=None, prompt=None, open_chat=None, chat_all=False, clipboard=False)
+        args = argparse.Namespace(
+            path="/nonexistent/path",
+            max_file_size=1024,
+            output=None,
+            prompt=None,
+            open_chat=None,
+            chat_all=False,
+            clipboard=False,
+        )
 
         with self.assertRaises(SystemExit):
             validate_arguments(args)
@@ -108,14 +124,30 @@ class TestArgumentValidation(TestCase):
         test_file = self.test_path / "test.txt"
         test_file.write_text("test")
 
-        args = argparse.Namespace(path=str(test_file), max_file_size=1024, output=None, prompt=None, open_chat=None, chat_all=False, clipboard=False)
+        args = argparse.Namespace(
+            path=str(test_file),
+            max_file_size=1024,
+            output=None,
+            prompt=None,
+            open_chat=None,
+            chat_all=False,
+            clipboard=False,
+        )
 
         with self.assertRaises(SystemExit):
             validate_arguments(args)
 
     def test_invalid_max_file_size(self):
         """Test validation of invalid max file size."""
-        args = argparse.Namespace(path=str(self.test_path), max_file_size=0, output=None, prompt=None, open_chat=None, chat_all=False, clipboard=False)
+        args = argparse.Namespace(
+            path=str(self.test_path),
+            max_file_size=0,
+            output=None,
+            prompt=None,
+            open_chat=None,
+            chat_all=False,
+            clipboard=False,
+        )
 
         with self.assertRaises(SystemExit):
             validate_arguments(args)
@@ -139,7 +171,9 @@ class TestIgnorePatterns(TestCase):
 
     def test_no_ignore_patterns(self):
         """Test when no ignore patterns are specified."""
-        args = argparse.Namespace(ignore=None, exclude_meta=None, include_meta=None, exclude_meta_files=False)
+        args = argparse.Namespace(
+            ignore=None, exclude_meta=None, include_meta=None, exclude_meta_files=False
+        )
 
         patterns = process_ignore_patterns(args)
         self.assertEqual(patterns, [])
@@ -178,7 +212,13 @@ class TestCLIIntegration(TestCase):
             size=15,
             language="python",
         )
-        mock_scan_result = ScanResult(files=[mock_file], repo_root=self.repo_path, total_size=15, ignored_files=[], included_files=[])
+        mock_scan_result = ScanResult(
+            files=[mock_file],
+            repo_root=self.repo_path,
+            total_size=15,
+            ignored_files=[],
+            included_files=[],
+        )
 
         mock_scan.return_value = mock_scan_result
         mock_generate.return_value = "# Test Markdown"
@@ -211,7 +251,13 @@ class TestCLIIntegration(TestCase):
         ignored_file = self.repo_path / "ignored.log"
         included_file = self.repo_path / "test.py"
 
-        mock_scan_result = ScanResult(files=[mock_file], repo_root=self.repo_path, total_size=15, ignored_files=[ignored_file], included_files=[included_file])
+        mock_scan_result = ScanResult(
+            files=[mock_file],
+            repo_root=self.repo_path,
+            total_size=15,
+            ignored_files=[ignored_file],
+            included_files=[included_file],
+        )
 
         mock_scan.return_value = mock_scan_result
         mock_generate.return_value = "# Test Markdown"

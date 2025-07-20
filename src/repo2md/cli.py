@@ -40,7 +40,9 @@ Examples:
     # Output options
     output_group = parser.add_argument_group("output options")
     output_group.add_argument("--output", "-o", type=Path, help="Output file path")
-    output_group.add_argument("--clipboard", "-c", action="store_true", help="Copy output to clipboard")
+    output_group.add_argument(
+        "--clipboard", "-c", action="store_true", help="Copy output to clipboard"
+    )
     output_group.add_argument(
         "--stdout",
         "-s",
@@ -95,10 +97,17 @@ Examples:
         action="append",
         help="Include specific meta files (overrides --exclude-meta-files)",
     )
-    filter_group.add_argument("--exclude-meta", action="append", help="Exclude specific meta files")
+    filter_group.add_argument(
+        "--exclude-meta", action="append", help="Exclude specific meta files"
+    )
 
     # Debugging options
-    parser.add_argument("-v", "--verbose", action="store_true", help="Show lists of all files included and all files ignored (output to stderr)")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Show lists of all files included and all files ignored (output to stderr)",
+    )
 
     return parser
 
@@ -112,7 +121,9 @@ def validate_arguments(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     if not repo_path.is_dir():
-        print(f"Error: Repository path is not a directory: {repo_path}", file=sys.stderr)
+        print(
+            f"Error: Repository path is not a directory: {repo_path}", file=sys.stderr
+        )
         sys.exit(1)
 
     # Check max file size
@@ -122,7 +133,10 @@ def validate_arguments(args: argparse.Namespace) -> None:
 
     # Validate chat options
     if args.prompt and not (args.open_chat or args.chat_all):
-        print("Warning: --prompt specified but no chat service selected. Use --open-chat or --chat-all", file=sys.stderr)
+        print(
+            "Warning: --prompt specified but no chat service selected. Use --open-chat or --chat-all",
+            file=sys.stderr,
+        )
 
     if (args.open_chat or args.chat_all) and not args.clipboard:
         print("Info: Enabling clipboard mode for AI chat integration", file=sys.stderr)
@@ -197,7 +211,9 @@ def main() -> None:
             output_file=args.output,
             to_clipboard=args.clipboard,
             to_stdout=args.stdout,
-            prompt=args.prompt if (args.open_chat or args.chat_all) else None,  # Nur bei AI-Chat
+            prompt=(
+                args.prompt if (args.open_chat or args.chat_all) else None
+            ),  # Nur bei AI-Chat
         )
 
         # Open AI chat if requested
@@ -210,7 +226,12 @@ def main() -> None:
             else:
                 services = [args.open_chat]
 
-            success = open_ai_chat(services=services, prompt=args.prompt, browser=args.browser, verbose=args.verbose)
+            success = open_ai_chat(
+                services=services,
+                prompt=args.prompt,
+                browser=args.browser,
+                verbose=args.verbose,
+            )
 
             if not success:
                 print("Warning: Could not open any AI chat service", file=sys.stderr)

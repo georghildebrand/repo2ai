@@ -49,7 +49,10 @@ def handle_output(
     # Copy to clipboard (mit Prompt falls vorhanden)
     if to_clipboard:
         if not PYPERCLIP_AVAILABLE:
-            print("✗ Error: pyperclip not available. Install with: pip install pyperclip", file=sys.stderr)
+            print(
+                "✗ Error: pyperclip not available. Install with: pip install pyperclip",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
         try:

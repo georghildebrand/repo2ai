@@ -116,7 +116,9 @@ def _parse_gitignore(gitignore_path: Path) -> List[str]:
     return patterns
 
 
-def _should_ignore_file(file_path: Path, repo_root: Path, ignore_patterns: List[str]) -> bool:
+def _should_ignore_file(
+    file_path: Path, repo_root: Path, ignore_patterns: List[str]
+) -> bool:
     """Check if file should be ignored based on patterns."""
     relative_path = file_path.relative_to(repo_root)
     relative_path_str = str(relative_path)
@@ -134,7 +136,9 @@ def _should_ignore_file(file_path: Path, repo_root: Path, ignore_patterns: List[
                 return True
         else:
             # Check against full path and filename
-            if fnmatch.fnmatch(relative_path_str, pattern) or fnmatch.fnmatch(file_path.name, pattern):
+            if fnmatch.fnmatch(relative_path_str, pattern) or fnmatch.fnmatch(
+                file_path.name, pattern
+            ):
                 return True
 
     return False
@@ -260,7 +264,11 @@ def scan_repository(
         root_path = Path(root)
 
         # Skip directories that match ignore patterns
-        dirs[:] = [d for d in dirs if not _should_ignore_file(root_path / d, repo_root, all_patterns)]
+        dirs[:] = [
+            d
+            for d in dirs
+            if not _should_ignore_file(root_path / d, repo_root, all_patterns)
+        ]
 
         for filename in filenames:
             file_path = root_path / filename
@@ -308,7 +316,9 @@ def scan_repository(
             # Determine language
             language = _get_language_from_extension(file_path)
 
-            repo_file = RepoFile(path=file_path, content=content, size=file_size, language=language)
+            repo_file = RepoFile(
+                path=file_path, content=content, size=file_size, language=language
+            )
 
             files.append(repo_file)
             total_size += file_size

@@ -34,7 +34,10 @@ def get_browser_controller(browser_name: str) -> webbrowser.BaseBrowser:
         else:
             return webbrowser.get(browser_name)
     except webbrowser.Error:
-        print(f"Warning: Browser '{browser_name}' not found, using default", file=sys.stderr)
+        print(
+            f"Warning: Browser '{browser_name}' not found, using default",
+            file=sys.stderr,
+        )
         return webbrowser.get()
 
 
@@ -67,7 +70,12 @@ def show_instructions(service: str, prompt: Optional[str] = None) -> None:
         print("3. Paste content with Ctrl+V (Cmd+V on Mac)", file=sys.stderr)
 
 
-def open_ai_chat(services: List[str], prompt: Optional[str] = None, browser: str = "default", verbose: bool = False) -> bool:
+def open_ai_chat(
+    services: List[str],
+    prompt: Optional[str] = None,
+    browser: str = "default",
+    verbose: bool = False,
+) -> bool:
     """
     Open AI chat service(s) in browser.
 

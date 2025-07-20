@@ -64,7 +64,9 @@ class TestGitignoreParser(TestCase):
 
     def test_parse_gitignore(self):
         """Test parsing .gitignore content."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".gitignore") as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".gitignore"
+        ) as f:
             f.write(
                 """# Comment
 *.pyc
@@ -98,13 +100,21 @@ class TestFileFiltering(TestCase):
         repo_root = Path("/repo")
 
         # Test exact match
-        self.assertTrue(_should_ignore_file(Path("/repo/test.pyc"), repo_root, ["*.pyc"]))
+        self.assertTrue(
+            _should_ignore_file(Path("/repo/test.pyc"), repo_root, ["*.pyc"])
+        )
 
         # Test directory pattern
-        self.assertTrue(_should_ignore_file(Path("/repo/__pycache__/test.py"), repo_root, ["__pycache__/"]))
+        self.assertTrue(
+            _should_ignore_file(
+                Path("/repo/__pycache__/test.py"), repo_root, ["__pycache__/"]
+            )
+        )
 
         # Test no match
-        self.assertFalse(_should_ignore_file(Path("/repo/test.py"), repo_root, ["*.pyc"]))
+        self.assertFalse(
+            _should_ignore_file(Path("/repo/test.py"), repo_root, ["*.pyc"])
+        )
 
     def test_binary_file_detection(self):
         """Test binary file detection."""
@@ -212,7 +222,9 @@ class TestRepositoryScanning(TestCase):
         self.assertEqual(len(result_no_verbose.ignored_files), 0)
 
         # Test with ignore patterns and verbose
-        result_with_ignores = scan_repository(self.repo_path, ignore_patterns=["*.js"], verbose=True)
+        result_with_ignores = scan_repository(
+            self.repo_path, ignore_patterns=["*.js"], verbose=True
+        )
 
         # Should have tracked some ignored files
         ignored_names = [p.name for p in result_with_ignores.ignored_files]
@@ -232,7 +244,13 @@ class TestMarkdownGeneration(TestCase):
             language="python",
         )
 
-        scan_result = ScanResult(files=[test_file], repo_root=repo_root, total_size=15, ignored_files=[], included_files=[])
+        scan_result = ScanResult(
+            files=[test_file],
+            repo_root=repo_root,
+            total_size=15,
+            ignored_files=[],
+            included_files=[],
+        )
 
         markdown = generate_markdown(scan_result)
 
@@ -262,7 +280,13 @@ class TestMarkdownGeneration(TestCase):
             ),
         ]
 
-        scan_result = ScanResult(files=files, repo_root=repo_root, total_size=35, ignored_files=[], included_files=[])
+        scan_result = ScanResult(
+            files=files,
+            repo_root=repo_root,
+            total_size=35,
+            ignored_files=[],
+            included_files=[],
+        )
 
         markdown = generate_markdown(scan_result)
 
