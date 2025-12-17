@@ -75,9 +75,10 @@ Examples:
     # Filtering options
     filter_group = parser.add_argument_group("filtering options")
     filter_group.add_argument(
-        "--ignore",
+        "--exclude",
         action="append",
-        help="Additional ignore patterns (can be used multiple times)",
+        metavar="PATTERN",
+        help="Exclude files matching pattern (can be used multiple times)",
     )
     filter_group.add_argument(
         "--exclude-meta-files",
@@ -153,13 +154,13 @@ def validate_arguments(args: argparse.Namespace) -> None:
                 sys.exit(1)
 
 
-def process_ignore_patterns(args: argparse.Namespace) -> List[str]:
-    """Process and combine ignore patterns from arguments."""
+def process_exclude_patterns(args: argparse.Namespace) -> List[str]:
+    """Process and combine exclude patterns from arguments."""
     patterns = []
 
-    # Add patterns from --ignore
-    if args.ignore:
-        patterns.extend(args.ignore)
+    # Add patterns from --exclude
+    if args.exclude:
+        patterns.extend(args.exclude)
 
     # Add patterns from --exclude-meta
     if args.exclude_meta:
@@ -176,8 +177,8 @@ def main() -> None:
     # Validate arguments
     validate_arguments(args)
 
-    # Process ignore patterns
-    ignore_patterns = process_ignore_patterns(args)
+    # Process exclude patterns
+    ignore_patterns = process_exclude_patterns(args)
 
     try:
         # Scan repository

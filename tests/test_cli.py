@@ -12,7 +12,7 @@ import argparse
 from repo2ai.cli import (
     create_parser,
     validate_arguments,
-    process_ignore_patterns,
+    process_exclude_patterns,
     main,
 )
 from repo2ai.core import RepoFile, ScanResult
@@ -44,9 +44,9 @@ class TestCLIParser(TestCase):
         """Test filtering option parsing."""
         args = self.parser.parse_args(
             [
-                "--ignore",
+                "--exclude",
                 "*.tmp",
-                "--ignore",
+                "--exclude",
                 "*.log",
                 "--exclude-meta-files",
                 "--max-file-size",
@@ -54,7 +54,7 @@ class TestCLIParser(TestCase):
                 ".",
             ]
         )
-        self.assertEqual(args.ignore, ["*.tmp", "*.log"])
+        self.assertEqual(args.exclude, ["*.tmp", "*.log"])
         self.assertTrue(args.exclude_meta_files)
         self.assertEqual(args.max_file_size, 500000)
 
@@ -156,26 +156,26 @@ class TestArgumentValidation(TestCase):
 class TestIgnorePatterns(TestCase):
     """Test ignore pattern processing."""
 
-    def test_process_ignore_patterns(self):
-        """Test processing ignore patterns."""
+    def test_process_exclude_patterns(self):
+        """Test processing exclude patterns."""
         args = argparse.Namespace(
-            ignore=["*.tmp", "*.log"],
+            exclude=["*.tmp", "*.log"],
             exclude_meta=["README.md"],
             include_meta=None,
             exclude_meta_files=False,
         )
 
-        patterns = process_ignore_patterns(args)
+        patterns = process_exclude_patterns(args)
         expected = ["*.tmp", "*.log", "README.md"]
         self.assertEqual(patterns, expected)
 
-    def test_no_ignore_patterns(self):
-        """Test when no ignore patterns are specified."""
+    def test_no_exclude_patterns(self):
+        """Test when no exclude patterns are specified."""
         args = argparse.Namespace(
-            ignore=None, exclude_meta=None, include_meta=None, exclude_meta_files=False
+            exclude=None, exclude_meta=None, include_meta=None, exclude_meta_files=False
         )
 
-        patterns = process_ignore_patterns(args)
+        patterns = process_exclude_patterns(args)
         self.assertEqual(patterns, [])
 
 
