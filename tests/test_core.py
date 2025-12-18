@@ -231,6 +231,47 @@ class TestRepositoryScanning(TestCase):
         self.assertIn("test.js", ignored_names)
 
 
+class TestScopedScan(TestCase):
+    """Test repository scanning with scope filtering."""
+
+    def setUp(self):
+        """Create a temporary directory with files."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.repo_root = Path(self.temp_dir)
+
+        (self.repo_root / "included.py").write_text("# included")
+        (self.repo_root / "excluded.py").write_text("# excluded")
+
+    def tearDown(self):
+        """Clean up temporary directory."""
+        import shutil
+
+        shutil.rmtree(self.temp_dir)
+
+    def test_scan_with_scope_whitelist(self):
+        """Test scanning respects scope whitelist."""
+        from repo2ai.scope import ScopeConfig
+
+        scope_config = ScopeConfig(include_patterns=["included.py"])
+
+        result = scan_repository(
+            self.repo_root,
+            scope_config=scope_config,
+        )
+
+        file_names = [f.path.name for f in result.files]
+        self.assertIn("included.py", file_names)
+        self.assertNotIn("excluded.py", file_names)
+
+    def test_scan_without_scope_includes_all(self):
+        """Test scanning without scope includes all files."""
+        result = scan_repository(self.repo_root)
+
+        file_names = [f.path.name for f in result.files]
+        self.assertIn("included.py", file_names)
+        self.assertIn("excluded.py", file_names)
+
+
 class TestMarkdownGeneration(TestCase):
     """Test markdown generation."""
 

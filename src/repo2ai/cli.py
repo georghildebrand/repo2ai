@@ -5,11 +5,12 @@ Command line interface for repo2ai with browser automation.
 import argparse
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from .core import scan_repository, generate_markdown
 from .output import handle_output
 from .browser import open_ai_chat
+from .scope import ScopeConfig
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -20,12 +21,23 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  repo2ai .                                    # Export current directory to stdout
+  repo2ai .                                    # Export current directory
   repo2ai ./project --output docs.md          # Export to file
   repo2ai . --clipboard                       # Copy to clipboard
-  repo2ai . --open-chat chatgpt               # Copy to clipboard and open ChatGPT
-  repo2ai . --open-chat claude --prompt "Analyze this code"  # Open Claude with prompt
-  repo2ai . --chat-all --prompt "Review this" # Try all AI services
+  repo2ai . --open-chat claude --prompt "Review this code"
+
+Scope filtering (reduce output for focused AI analysis):
+  repo2ai . --recent 3                        # Files from last 3 commits
+  repo2ai . --uncommitted                     # Files with uncommitted changes
+  repo2ai . --include "**/*.py"               # All Python files
+  repo2ai . --include "src/**" --exclude "*.test.py"  # src/ without tests
+  repo2ai . --recent 1 --include "**/*.py"    # Recent Python changes
+
+Pattern examples:
+  **/*.py      All Python files recursively
+  src/**/*.py  Python files under src/
+  *.md         Markdown files in root only
+  tests/*      Files directly in tests/ (not subdirs)
         """,
     )
 
@@ -81,9 +93,9 @@ Examples:
         help="Exclude files matching pattern (can be used multiple times)",
     )
     filter_group.add_argument(
-        "--exclude-meta-files",
+        "--no-meta",
         action="store_true",
-        help="Exclude meta files like .gitignore, README, LICENSE",
+        help="Exclude meta files (.gitignore, README, LICENSE, CHANGELOG, etc.)",
     )
     filter_group.add_argument(
         "--max-file-size",
@@ -92,14 +104,24 @@ Examples:
         help="Maximum file size in bytes (default: 1MB)",
     )
 
-    # Include/exclude specific files
-    filter_group.add_argument(
-        "--include-meta",
-        action="append",
-        help="Include specific meta files (overrides --exclude-meta-files)",
+    # Scope options (limit output for focused AI analysis)
+    scope_group = parser.add_argument_group("scope options (limit output)")
+    scope_group.add_argument(
+        "--recent",
+        type=int,
+        metavar="N",
+        help="Only include files changed in the last N commits",
     )
-    filter_group.add_argument(
-        "--exclude-meta", action="append", help="Exclude specific meta files"
+    scope_group.add_argument(
+        "--uncommitted",
+        action="store_true",
+        help="Only include files with uncommitted changes",
+    )
+    scope_group.add_argument(
+        "--include",
+        action="append",
+        metavar="PATTERN",
+        help="Only include files matching glob pattern (e.g., **/*.py)",
     )
 
     # Debugging options
@@ -158,15 +180,22 @@ def process_exclude_patterns(args: argparse.Namespace) -> List[str]:
     """Process and combine exclude patterns from arguments."""
     patterns = []
 
-    # Add patterns from --exclude
     if args.exclude:
         patterns.extend(args.exclude)
 
-    # Add patterns from --exclude-meta
-    if args.exclude_meta:
-        patterns.extend(args.exclude_meta)
-
     return patterns
+
+
+def build_scope_config(args: argparse.Namespace) -> Optional[ScopeConfig]:
+    """Build ScopeConfig from CLI arguments."""
+    if not args.recent and not args.uncommitted and not args.include:
+        return None
+
+    return ScopeConfig(
+        recent=args.recent,
+        uncommitted=args.uncommitted,
+        include_patterns=args.include or [],
+    )
 
 
 def main() -> None:
@@ -179,16 +208,30 @@ def main() -> None:
 
     # Process exclude patterns
     ignore_patterns = process_exclude_patterns(args)
+    scope_config = build_scope_config(args)
 
     try:
+        # Print scope info if verbose
+        if args.verbose and scope_config and scope_config.is_scoped:
+            print("=== Scope Filtering ===", file=sys.stderr)
+            if scope_config.recent:
+                print(f"  Recent commits: {scope_config.recent}", file=sys.stderr)
+            if scope_config.uncommitted:
+                print("  Uncommitted changes: Yes", file=sys.stderr)
+            if scope_config.include_patterns:
+                for pattern in scope_config.include_patterns:
+                    print(f"  Include: {pattern}", file=sys.stderr)
+            print("=======================", file=sys.stderr)
+
         # Scan repository
         print("Scanning repository...", file=sys.stderr)
         scan_result = scan_repository(
             repo_path=Path(args.path),
             ignore_patterns=ignore_patterns,
-            exclude_meta_files=args.exclude_meta_files,
+            exclude_meta_files=args.no_meta,
             max_file_size=args.max_file_size,
             verbose=args.verbose,
+            scope_config=scope_config,
         )
 
         # Print verbose report if requested

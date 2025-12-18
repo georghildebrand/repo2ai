@@ -6,7 +6,10 @@ import os
 import fnmatch
 import subprocess
 from pathlib import Path
-from typing import List, Optional, NamedTuple, Set
+from typing import TYPE_CHECKING, List, Optional, NamedTuple, Set
+
+if TYPE_CHECKING:
+    from .scope import ScopeConfig
 
 # TODO: insert logging and configure propper logger output
 
@@ -183,6 +186,7 @@ def scan_repository(
     exclude_meta_files: bool = False,
     max_file_size: int = 1024 * 1024,  # 1MB
     verbose: bool = False,
+    scope_config: Optional["ScopeConfig"] = None,
 ) -> ScanResult:
     """
     Scan repository and return filtered files.
@@ -193,6 +197,7 @@ def scan_repository(
         exclude_meta_files: Whether to exclude meta files like .gitignore, README
         max_file_size: Maximum file size in bytes
         verbose: Whether to track ignored and included files for reporting
+        scope_config: Optional scope configuration for filtering files
 
     Returns:
         ScanResult with filtered files and optional verbose tracking
@@ -201,6 +206,13 @@ def scan_repository(
 
     if not repo_root.exists():
         raise FileNotFoundError(f"Repository path does not exist: {repo_root}")
+
+    # Get scope whitelist if configured
+    scope_whitelist: Optional[Set[Path]] = None
+    if scope_config:
+        from .scope import get_scoped_files
+
+        scope_whitelist = get_scoped_files(repo_root, scope_config)
 
     # Get patterns from .gitignore
     gitignore_patterns = _parse_gitignore(repo_root / ".gitignore")
@@ -281,6 +293,12 @@ def scan_repository(
 
             # If we have Git files, only include tracked files
             if git_files and file_path not in git_files:
+                if verbose:
+                    ignored_files.append(file_path)
+                continue
+
+            # If scope whitelist exists, only include whitelisted files
+            if scope_whitelist is not None and file_path not in scope_whitelist:
                 if verbose:
                     ignored_files.append(file_path)
                 continue

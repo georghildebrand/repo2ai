@@ -48,14 +48,14 @@ class TestCLIParser(TestCase):
                 "*.tmp",
                 "--exclude",
                 "*.log",
-                "--exclude-meta-files",
+                "--no-meta",
                 "--max-file-size",
                 "500000",
                 ".",
             ]
         )
         self.assertEqual(args.exclude, ["*.tmp", "*.log"])
-        self.assertTrue(args.exclude_meta_files)
+        self.assertTrue(args.no_meta)
         self.assertEqual(args.max_file_size, 500000)
 
     def test_help_message(self):
@@ -160,23 +160,93 @@ class TestIgnorePatterns(TestCase):
         """Test processing exclude patterns."""
         args = argparse.Namespace(
             exclude=["*.tmp", "*.log"],
-            exclude_meta=["README.md"],
-            include_meta=None,
-            exclude_meta_files=False,
         )
 
         patterns = process_exclude_patterns(args)
-        expected = ["*.tmp", "*.log", "README.md"]
+        expected = ["*.tmp", "*.log"]
         self.assertEqual(patterns, expected)
 
     def test_no_exclude_patterns(self):
         """Test when no exclude patterns are specified."""
         args = argparse.Namespace(
-            exclude=None, exclude_meta=None, include_meta=None, exclude_meta_files=False
+            exclude=None,
         )
 
         patterns = process_exclude_patterns(args)
         self.assertEqual(patterns, [])
+
+
+class TestScopeIntegration(TestCase):
+    """Test scope arguments integration."""
+
+    def test_build_scope_config_from_args(self):
+        """Test ScopeConfig is created from CLI arguments."""
+        from repo2ai.cli import build_scope_config
+        from repo2ai.scope import ScopeConfig
+
+        parser = create_parser()
+        args = parser.parse_args(
+            [
+                ".",
+                "--recent",
+                "2",
+                "--uncommitted",
+                "--include",
+                "src/*.py",
+            ]
+        )
+
+        config = build_scope_config(args)
+
+        self.assertIsInstance(config, ScopeConfig)
+        self.assertEqual(config.recent, 2)
+        self.assertTrue(config.uncommitted)
+        self.assertEqual(config.include_patterns, ["src/*.py"])
+
+    def test_build_scope_config_none_when_no_args(self):
+        """Test ScopeConfig is None when no scope arguments."""
+        from repo2ai.cli import build_scope_config
+
+        parser = create_parser()
+        args = parser.parse_args(["."])
+
+        config = build_scope_config(args)
+
+        self.assertIsNone(config)
+
+
+class TestScopeArguments(TestCase):
+    """Test scope filtering CLI arguments."""
+
+    def test_recent_argument(self):
+        """Test --recent argument."""
+        parser = create_parser()
+        args = parser.parse_args([".", "--recent", "3"])
+
+        self.assertEqual(args.recent, 3)
+
+    def test_uncommitted_argument(self):
+        """Test --uncommitted argument."""
+        parser = create_parser()
+        args = parser.parse_args([".", "--uncommitted"])
+
+        self.assertTrue(args.uncommitted)
+
+    def test_include_argument(self):
+        """Test --include argument."""
+        parser = create_parser()
+        args = parser.parse_args([".", "--include", "**/*.py", "--include", "*.md"])
+
+        self.assertEqual(args.include, ["**/*.py", "*.md"])
+
+    def test_scope_arguments_default_values(self):
+        """Test scope arguments have correct defaults."""
+        parser = create_parser()
+        args = parser.parse_args(["."])
+
+        self.assertIsNone(args.recent)
+        self.assertFalse(args.uncommitted)
+        self.assertIsNone(args.include)
 
 
 class TestCLIIntegration(TestCase):
