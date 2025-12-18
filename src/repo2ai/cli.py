@@ -11,6 +11,7 @@ from .core import scan_repository, generate_markdown
 from .output import handle_output
 from .browser import open_ai_chat
 from .scope import ScopeConfig
+from .pr import get_pr_context, generate_pr_markdown
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -25,6 +26,11 @@ Examples:
   repo2ai ./project --output docs.md          # Export to file
   repo2ai . --clipboard                       # Copy to clipboard
   repo2ai . --open-chat claude --prompt "Review this code"
+
+PR review (generate context for AI code review):
+  repo2ai . --pr-review                       # PR context against main/upstream
+  repo2ai . --pr-review develop               # PR context against develop branch
+  repo2ai . --pr-review --open-chat claude    # PR review with Claude
 
 Scope filtering (reduce output for focused AI analysis):
   repo2ai . --recent 3                        # Files from last 3 commits
@@ -123,6 +129,13 @@ Pattern examples:
         metavar="PATTERN",
         help="Only include files matching glob pattern (e.g., **/*.py)",
     )
+    scope_group.add_argument(
+        "--pr-review",
+        nargs="?",
+        const="auto",
+        metavar="TARGET",
+        help="Generate PR review context (diff + changed files). TARGET defaults to main or upstream.",
+    )
 
     # Debugging options
     parser.add_argument(
@@ -198,6 +211,34 @@ def build_scope_config(args: argparse.Namespace) -> Optional[ScopeConfig]:
     )
 
 
+def handle_pr_review(args: argparse.Namespace, repo_path: Path) -> str:
+    """Handle PR review mode and return markdown content."""
+    target = None if args.pr_review == "auto" else args.pr_review
+
+    print("Generating PR review context...", file=sys.stderr)
+
+    # Get PR context
+    context = get_pr_context(repo_path, target)
+
+    print(
+        f"  Branch: {context.current_branch} → {context.target_branch}", file=sys.stderr
+    )
+    print(f"  Changed files: {len(context.changed_files)}", file=sys.stderr)
+    print(f"  Commits: {context.commit_count}", file=sys.stderr)
+
+    # Read file contents
+    file_contents = {}
+    for file_path in context.changed_files:
+        try:
+            rel_path = file_path.relative_to(repo_path)
+            content = file_path.read_text(encoding="utf-8", errors="replace")
+            file_contents[str(rel_path)] = content
+        except Exception:
+            pass  # Skip files that can't be read
+
+    return generate_pr_markdown(context, file_contents)
+
+
 def main() -> None:
     """Main entry point for the CLI."""
     parser = create_parser()
@@ -211,6 +252,50 @@ def main() -> None:
     scope_config = build_scope_config(args)
 
     try:
+        repo_path = Path(args.path).resolve()
+
+        # PR review mode
+        if args.pr_review:
+            # Enable clipboard by default for PR review
+            if not args.clipboard and not args.output and not args.stdout:
+                args.clipboard = True
+                print("Info: Enabling clipboard mode for PR review", file=sys.stderr)
+
+            markdown_content = handle_pr_review(args, repo_path)
+
+            # Handle output
+            handle_output(
+                content=markdown_content,
+                output_file=args.output,
+                to_clipboard=args.clipboard,
+                to_stdout=args.stdout,
+                prompt=args.prompt if (args.open_chat or args.chat_all) else None,
+            )
+
+            # Open AI chat if requested
+            if args.open_chat or args.chat_all:
+                print("Opening AI chat...", file=sys.stderr)
+
+                services = []
+                if args.chat_all:
+                    services = ["chatgpt", "claude", "gemini"]
+                else:
+                    services = [args.open_chat]
+
+                success = open_ai_chat(
+                    services=services,
+                    prompt=args.prompt,
+                    browser=args.browser,
+                    verbose=args.verbose,
+                )
+
+                if not success:
+                    print(
+                        "Warning: Could not open any AI chat service", file=sys.stderr
+                    )
+
+            print("✓ PR review context ready", file=sys.stderr)
+            return
         # Print scope info if verbose
         if args.verbose and scope_config and scope_config.is_scoped:
             print("=== Scope Filtering ===", file=sys.stderr)

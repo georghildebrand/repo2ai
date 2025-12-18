@@ -56,6 +56,26 @@ repo2ai . --open-chat chatgpt --browser firefox
 
 Supported services: `chatgpt`, `claude`, `gemini`
 
+### PR Review Mode
+
+Generate AI-friendly context for code review. Includes diff, branch info, and full content of changed files:
+
+```bash
+# PR context against main/upstream (auto-detects target)
+repo2ai . --pr-review
+
+# PR context against specific branch
+repo2ai . --pr-review develop
+
+# PR review with Claude
+repo2ai . --pr-review --open-chat claude --prompt "Review this PR for bugs and style"
+```
+
+The PR review output includes:
+- Branch summary (source → target, commit count)
+- Full diff between branches
+- Complete content of all changed files (with syntax highlighting)
+
 ### Scope Filtering (Focused Analysis)
 
 Limit export to specific files for focused AI analysis:
@@ -109,6 +129,7 @@ Run `repo2ai --help` for complete options. Key flags:
 | `--recent N` | Only files from last N commits |
 | `--uncommitted` | Only uncommitted changes |
 | `--include PATTERN` | Only files matching glob pattern |
+| `--pr-review [TARGET]` | Generate PR review context (diff + changed files) |
 | `-v, --verbose` | Show detailed file lists |
 
 ## Contributing
@@ -116,8 +137,28 @@ Run `repo2ai --help` for complete options. Key flags:
 ```bash
 git clone https://github.com/georghildebrand/repo2ai.git
 cd repo2ai
-make setup    # Install dependencies + dev tools
-make ci       # Run all checks (format, lint, test)
+
+# Setup
+make setup         # Install dependencies + dev tools + pre-commit hooks
+make install       # Install dependencies only
+
+# Development
+make format        # Auto-format code with Black
+make lint          # Run flake8 + mypy
+make test          # Run tests
+make test-cov      # Run tests with coverage report
+
+# Validation
+make ci            # Run all checks (format-check, lint, test)
+make check         # Same as ci
+
+# Build & Clean
+make build         # Build wheel and sdist
+make clean         # Remove build artifacts and caches
+make distclean     # Deep clean including virtualenv
+
+# Full pipeline
+make all           # Run check + docs + build
 ```
 
 See [Contributing Guidelines](docs/CONTRIBUTING.md) for details.
