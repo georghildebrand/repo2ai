@@ -58,23 +58,38 @@ Supported services: `chatgpt`, `claude`, `gemini`
 
 ### PR Review Mode
 
-Generate AI-friendly context for code review. Includes diff, branch info, and full content of changed files:
+Generate AI-friendly context for code reviews. This mode is specifically optimized to give an AI everything it needs to understand your changes: the **metadata**, the **actual diff**, and the **full content** of every changed file.
+
+#### 1. Automatic Target Detection
+If you don't specify a target branch, `repo2ai` automatically detects the best merge target:
+- It checks for the remote default branch (`origin/HEAD`).
+- It looks for common base branches (`main`, `master`, `develop`, `dev`).
+- It uses the upstream tracking branch if it's different from your current branch.
 
 ```bash
-# PR context against main/upstream (auto-detects target)
+# Auto-detect target (e.g., compares feature → main)
 repo2ai . --pr-review
-
-# PR context against specific branch
-repo2ai . --pr-review develop
-
-# PR review with Claude
-repo2ai . --pr-review --open-chat claude --prompt "Review this PR for bugs and style"
 ```
 
-The PR review output includes:
-- Branch summary (source → target, commit count)
-- Full diff between branches
-- Complete content of all changed files (with syntax highlighting)
+#### 2. Specific Targets
+You can compare against any local or remote branch:
+
+```bash
+# PR context against specific local branch
+repo2ai . --pr-review develop
+
+# PR context against remote main branch
+repo2ai . --pr-review origin/main
+
+# PR review with Claude and a custom prompt
+repo2ai . --pr-review --open-chat claude --prompt "Analyze for logic errors and performance"
+```
+
+#### 3. What's Included?
+The generated Markdown report contains:
+- **Summary:** Source and target branches, number of changed files, and total commit count.
+- **Unified Diff:** The exact code changes for concise review.
+- **Full File Context:** The complete current content of every changed file, enabling the AI to understand the impact of your changes on the surrounding code.
 
 ### Scope Filtering (Focused Analysis)
 

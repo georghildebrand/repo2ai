@@ -15,8 +15,10 @@ def get_target_branch(
 
     Priority:
     1. Explicit target if provided
-    2. Upstream tracking branch if set
-    3. Fallback to 'main'
+    2. Remote default branch (origin/HEAD) if not current branch
+    3. Common base branches (main, master, develop) if they exist and are not current
+    4. Upstream tracking branch if it's different from current
+    5. Fallback to 'main'
 
     Args:
         repo_root: Path to repository root
@@ -28,7 +30,59 @@ def get_target_branch(
     if explicit_target:
         return explicit_target
 
-    # Try to get upstream tracking branch
+    current = get_current_branch(repo_root)
+
+    # 1. Try to get remote default branch (origin/HEAD)
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "origin/HEAD"],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        target = result.stdout.strip()
+        if target.startswith("origin/"):
+            target = target[len("origin/") :]
+        if target and target != current:
+            # Check if this branch actually exists locally or remotely
+            subprocess.run(
+                ["git", "rev-parse", "--verify", target],
+                cwd=repo_root,
+                capture_output=True,
+                check=True,
+            )
+            return target
+    except subprocess.CalledProcessError:
+        pass
+
+    # 2. Check common base branches
+    for candidate in ["main", "master", "develop", "dev"]:
+        if candidate == current:
+            continue
+        try:
+            # Check if candidate exists locally
+            subprocess.run(
+                ["git", "rev-parse", "--verify", candidate],
+                cwd=repo_root,
+                capture_output=True,
+                check=True,
+            )
+            return candidate
+        except subprocess.CalledProcessError:
+            try:
+                # Check if candidate exists on origin
+                subprocess.run(
+                    ["git", "rev-parse", "--verify", f"origin/{candidate}"],
+                    cwd=repo_root,
+                    capture_output=True,
+                    check=True,
+                )
+                return candidate
+            except subprocess.CalledProcessError:
+                continue
+
+    # 3. Try upstream tracking branch if it's different
     try:
         result = subprocess.run(
             ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"],
@@ -41,8 +95,12 @@ def get_target_branch(
         if upstream:
             # Extract branch name from origin/branch format
             if "/" in upstream:
-                return upstream.split("/", 1)[1]
-            return upstream
+                upstream_name = upstream.split("/", 1)[1]
+            else:
+                upstream_name = upstream
+
+            if upstream_name != current:
+                return upstream_name
     except subprocess.CalledProcessError:
         pass
 
