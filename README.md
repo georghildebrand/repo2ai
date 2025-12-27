@@ -169,6 +169,10 @@ make check         # Same as ci
 make install-system # Install built wheel into user site-packages (dev-only)
 make uninstall-system # Remove system installation
 
+# Release & Versioning
+make version       # Show current project version
+make release PART=patch  # Level release (patch, minor, or major)
+
 # Build & Clean
 make build         # Build wheel and sdist
 make clean         # Remove build artifacts and caches
@@ -177,6 +181,18 @@ make distclean     # Deep clean including virtualenv
 # Full pipeline
 make all           # Run check + docs + build
 ```
+
+### Releasing a New Version
+
+The project uses automated GitHub Actions for releases. To trigger a new release:
+
+1.  Run `make release PART=patch` (or `minor`/`major`).
+2.  The command will automatically:
+    - Run the quality gate (`make check`).
+    - Bump the version in `pyproject.toml`.
+    - Create a Git tag (e.g., `v0.2.1`).
+    - Push the tag and code to GitHub.
+3.  GitHub Actions will then build the package, publish it to PyPI, and create a GitHub Release with documentation.
 
 See [Contributing Guidelines](docs/CONTRIBUTING.md) for details.
 
