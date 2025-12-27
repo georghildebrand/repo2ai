@@ -114,7 +114,12 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install make
-          echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
+          # Add GNU make to PATH (handling both ARM and Intel runners)
+          if [ -d "/opt/homebrew/opt/make/libexec/gnubin" ]; then
+            echo "/opt/homebrew/opt/make/libexec/gnubin" >> $GITHUB_PATH
+          else
+            echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
+          fi
 
       - name: Install dependencies
         run: make install
