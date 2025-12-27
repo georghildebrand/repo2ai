@@ -151,6 +151,8 @@ make test-cov      # Run tests with coverage report
 # Validation
 make ci            # Run all checks (format-check, lint, test)
 make check         # Same as ci
+make install-system # Install built wheel into user site-packages (dev-only)
+make uninstall-system # Remove system installation
 
 # Build & Clean
 make build         # Build wheel and sdist
@@ -165,7 +167,7 @@ See [Contributing Guidelines](docs/CONTRIBUTING.md) for details.
 
 ## Architecture
 
-The tool follows a modular architecture: CLI parsing, repository scanning, markdown generation, and output handling. See [Architecture Documentation](docs/ARCHITECTURE.md) for details.
+The tool follows a modular architecture: CLI parsing, repository scanning, scope filtering, PR review context generation, markdown generation, and output handling. See [Architecture Documentation](docs/ARCHITECTURE.md) for details.
 
 ## License
 

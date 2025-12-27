@@ -50,14 +50,16 @@ src/repo2ai/
   - `get_changed_files()`: Get set of files changed in the PR
   - `generate_pr_markdown()`: Generate annotated markdown for AI consumption
 
-- **Output Module** (`output.py`): Handles file writing, clipboard integration via pyperclip, and stdout handling.
+- **Output Module** (`output.py`): Handles file writing, clipboard integration via `pyperclip`, and `stdout` handling.
 
-- **Browser Module** (`browser.py`): AI chat integration and browser automation for ChatGPT, Claude, and Gemini.
+- **Browser Module** (`browser.py`): AI chat integration for ChatGPT, Claude, and Gemini. Opens service URLs in the system's default or specified browser and provides instructions for the user to paste the exported content.
 
 ## Data Flow
 
 ```
-CLI parses args → Scope determines file whitelist (optional) → Core scans repo → Core generates markdown → Output handles destinations → Browser opens AI services (optional)
+Standard: CLI parses args → Scope determines file whitelist (optional) → Core scans repo → Core generates markdown → Output handles destinations → Browser opens AI services (optional)
+
+PR Review: CLI parses args → PR module detects branches/diffs → Core/PR generate markdown → Output handles destinations → Browser opens AI services (optional)
 ```
 
 ## Default Filtering Behavior
@@ -65,7 +67,7 @@ CLI parses args → Scope determines file whitelist (optional) → Core scans re
 - Respects `.gitignore` via `git ls-files`
 - Skips binary files (null byte detection)
 - Default 1MB file size limit
-- Excludes: `.git/`, `__pycache__/`, `node_modules/`, `.venv/`, `.env*`
+- Excludes: `.git/`, `__pycache__/`, `node_modules/`, `.venv/`, `.env*`, `*.pyc`, `*.pyo`, `.DS_Store`
 
 ## Architecture Diagrams
 

@@ -3,8 +3,8 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'  # Trigger on version tags like v1.0.0
-  workflow_dispatch:  # Allow manual trigger for testing
+      - "v*" # Trigger on version tags like v1.0.0
+  workflow_dispatch: # Allow manual trigger for testing
 
 jobs:
   test:
@@ -12,29 +12,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-    - name: Install dependencies
-      run: poetry install --no-interaction
+      - name: Install dependencies
+        run: poetry install --no-interaction
 
-    - name: Run full test suite
-      run: |
-        poetry run pytest tests/ -v
-        poetry run black --check src/ tests/
-        poetry run flake8 src/ tests/
-        poetry run mypy src/repo2ai/
+      - name: Run full test suite
+        run: |
+          poetry run pytest tests/ -v
+          poetry run black --check src/ tests/
+          poetry run flake8 src/ tests/
+          poetry run mypy src/repo2ai/
 
   build-and-publish:
     name: Build and Publish to PyPI
@@ -42,48 +42,48 @@ jobs:
     needs: test
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-    - name: Build package
-      run: poetry build
+      - name: Build package
+        run: poetry build
 
-    - name: Check package
-      run: |
-        poetry run pip install twine
-        poetry run twine check dist/*
+      - name: Check package
+        run: |
+          poetry run pip install twine
+          poetry run twine check dist/*
 
-    - name: Publish to PyPI
-      env:
-        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
-      run: poetry publish
+      - name: Publish to PyPI
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+        run: poetry publish
 
-    # Test PyPI publish first
-    - name: Publish to Test PyPI (optional)
-      env:
-        POETRY_REPOSITORIES_TESTPYPI_URL: https://test.pypi.org/legacy/
-        POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      run: |
-        poetry config repositories.testpypi https://test.pypi.org/legacy/
-        poetry publish -r testpypi
-      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-test')
+      # Test PyPI publish first
+      - name: Publish to Test PyPI (optional)
+        env:
+          POETRY_REPOSITORIES_TESTPYPI_URL: https://test.pypi.org/legacy/
+          POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry publish -r testpypi
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-test')
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: dist
-        path: dist/
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
 
   create-release:
     name: Create GitHub Release
@@ -91,92 +91,93 @@ jobs:
     needs: build-and-publish
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetch all history for changelog
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for changelog
 
-    - name: Setup Java (for PlantUML)
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '11'
+      - name: Setup Java (for PlantUML)
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "11"
 
-    - name: Install PlantUML
-      run: |
-        wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-        echo 'java -jar plantuml.jar "$@"' > plantuml
-        chmod +x plantuml
-        sudo mv plantuml /usr/local/bin/
-        sudo mv plantuml.jar /usr/local/bin/
+      - name: Install PlantUML
+        run: |
+          wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+          echo 'java -jar plantuml.jar "$@"' > plantuml
+          chmod +x plantuml
+          sudo mv plantuml /usr/local/bin/
+          sudo mv plantuml.jar /usr/local/bin/
 
-    - name: Render architecture diagrams
-      run: |
-        mkdir -p docs/images
-        plantuml -tpng docs/architecture/c4/*.puml -o ../../../docs/images/
+      - name: Render architecture diagrams
+        run: |
+          mkdir -p docs/images
+          plantuml -tpng docs/architecture/c4/*.puml -o ../../../docs/images/
 
-    - name: Get version from tag
-      id: get_version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
 
-    - name: Generate changelog
-      id: changelog
-      run: |
-        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-        echo "## What's Changed" >> $GITHUB_OUTPUT
-        git log "$(git describe --tags --abbrev=0 HEAD^)"..HEAD --pretty=format:"* %s (%h)" >> $GITHUB_OUTPUT || echo "* Initial release" >> $GITHUB_OUTPUT
-        echo "" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "CHANGELOG<<EOF" >> "$GITHUB_OUTPUT"
+          echo "## What's Changed" >> "$GITHUB_OUTPUT"
+          git log "$(git describe --tags --abbrev=0 HEAD^)"..HEAD --pretty=format:"* %s (%h)" >> "$GITHUB_OUTPUT" || echo "* Initial release" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
-    - name: Download build artifacts
-      uses: actions/download-artifact@v5
-      with:
-        name: dist
-        path: dist/
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: dist
+          path: dist/
 
-    - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release v${{ steps.get_version.outputs.VERSION }}
-        body: |
-          # repo2ai v${{ steps.get_version.outputs.VERSION }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            # repo2ai v${{ steps.get_version.outputs.VERSION }}
 
-          ${{ steps.changelog.outputs.CHANGELOG }}
+            ${{ steps.changelog.outputs.CHANGELOG }}
 
-          ## Installation
+            ## Installation
 
-          ```bash
-          pip install repo2ai==${{ steps.get_version.outputs.VERSION }}
-          ```
+            ```bash
+            pip install repo2ai==${{ steps.get_version.outputs.VERSION }}
+            ```
 
-          ## Architecture Diagrams
+            ## Architecture Diagrams
 
-          The architecture diagrams for this release are available in the repository under `docs/images/`.
+            The architecture diagrams for this release are available in the repository under `docs/images/`.
 
-          ## Checksums
+            ## Checksums
 
-          See the assets below for package checksums.
-        draft: false
-        prerelease: false
+            See the assets below for package checksums.
+          draft: false
+          prerelease: false
 
-    - name: Upload wheel to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/repo2ai-${{ steps.get_version.outputs.VERSION }}-py3-none-any.whl
-        asset_name: repo2ai-${{ steps.get_version.outputs.VERSION }}-py3-none-any.whl
-        asset_content_type: application/octet-stream
+      - name: Upload wheel to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/repo2ai-${{ steps.get_version.outputs.VERSION }}-py3-none-any.whl
+          asset_name: repo2ai-${{ steps.get_version.outputs.VERSION }}-py3-none-any.whl
+          asset_content_type: application/octet-stream
 
-    - name: Upload source distribution to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/repo2ai-${{ steps.get_version.outputs.VERSION }}.tar.gz
-        asset_name: repo2ai-${{ steps.get_version.outputs.VERSION }}.tar.gz
-        asset_content_type: application/gzip
+      - name: Upload source distribution to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/repo2ai-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_name: repo2ai-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_content_type: application/gzip

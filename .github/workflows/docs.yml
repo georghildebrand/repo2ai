@@ -2,16 +2,16 @@ name: Documentation
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'docs/**'
-      - 'README.md'
-      - 'src/**/*.py'
+      - "docs/**"
+      - "README.md"
+      - "src/**/*.py"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'docs/**'
-      - 'README.md'
+      - "docs/**"
+      - "README.md"
 
 jobs:
   render-diagrams:
@@ -19,91 +19,91 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Setup Java (for PlantUML)
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '11'
+      - name: Setup Java (for PlantUML)
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "11"
 
-    - name: Install PlantUML
-      run: |
-        wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+      - name: Install PlantUML
+        run: |
+          wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
 
-    - name: Create images directory
-      run: mkdir -p docs/images
+      - name: Create images directory
+        run: mkdir -p docs/images
 
-    - name: Render PlantUML diagrams
-      run: |
-        java -jar plantuml.jar -tpng docs/architecture/c4/*.puml -o docs/images/
-        ls -la docs/images/
+      - name: Render PlantUML diagrams
+        run: |
+          java -jar plantuml.jar -tpng docs/architecture/c4/*.puml -o docs/images/
+          ls -la docs/images/
 
-    - name: Check for changes
-      id: verify-changed-files
-      run: |
-        if [ -n "$(git status --porcelain)" ]; then
-          echo "changed=true" >> $GITHUB_OUTPUT
-        else
-          echo "changed=false" >> $GITHUB_OUTPUT
-        fi
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
 
-    - name: Commit rendered diagrams
-      if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add docs/images/*.png
-        git commit -m "docs: update rendered architecture diagrams" || exit 0
-        git push
+      - name: Commit rendered diagrams
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/images/*.png
+          git commit -m "docs: update rendered architecture diagrams" || exit 0
+          git push
 
-    - name: Upload diagram artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: rendered-diagrams
-        path: docs/images/*.png
+      - name: Upload diagram artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-diagrams
+          path: docs/images/*.png
 
   validate-links:
     name: Validate Documentation Links
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Check Markdown links
-      uses: gaurav-nelson/github-action-markdown-link-check@v1
-      with:
-        use-verbose-mode: 'yes'
-        config-file: '.github/markdown-link-check.json'
+      - name: Check Markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-verbose-mode: "yes"
+          config-file: ".github/markdown-link-check.json"
 
   validate-workflows-actionlint:
     name: Validate GitHub Actions (actionlint)
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Run actionlint
-      uses: raven-actions/actionlint@v2
-      with:
-        files: '.github/workflows/*.yml'
+      - name: Run actionlint
+        uses: raven-actions/actionlint@v2
+        with:
+          files: ".github/workflows/*.yml"
 
   validate-workflows-makefile:
     name: Validate GitHub Actions (Makefile)
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install actionlint
-      run: |
-        # Download and install actionlint
-        curl -L -o actionlint.tar.gz https://github.com/rhymond/actionlint/releases/download/v1.6.27/actionlint_1.6.27_linux_amd64.tar.gz
-        tar -xzf actionlint.tar.gz
-        sudo mv actionlint /usr/local/bin/
-        rm actionlint.tar.gz
+      - name: Install actionlint
+        run: |
+          # Download and install actionlint
+          curl -L -o actionlint.tar.gz https://github.com/rhymond/actionlint/releases/download/v1.6.27/actionlint_1.6.27_linux_amd64.tar.gz
+          tar -xzf actionlint.tar.gz
+          sudo mv actionlint /usr/local/bin/
+          rm actionlint.tar.gz
 
-    - name: Validate workflows using Makefile
-      run: make validate
+      - name: Validate workflows using Makefile
+        run: make validate

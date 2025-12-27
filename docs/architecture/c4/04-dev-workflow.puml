@@ -65,9 +65,11 @@ note right of makeTargets
   • make test-cov (with coverage)
 
   **Development:**
-  • make run (demo on current dir)
-  • make run-chat (with AI integration)
-  • make demo (feature demonstration)
+  • make run (run CLI on current dir)
+  • make run-help (show CLI help)
+  • make demo (generate demo output)
+  • make install-system (install wheel locally)
+  • make uninstall-system (remove system install)
 
   **Documentation:**
   • make docs (render PlantUML)

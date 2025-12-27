@@ -1,15 +1,17 @@
 @startuml C4_Level2_repo2ai
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-title Container Diagram - Repo2ai Internal Architecture (Updated)
+title Class Module Diagram - Repo2ai Internal Architecture (Updated)
 
 Person(developer, "Developer", "Nutzer des CLI-Tools")
 
 System_Boundary(repoToAi, "Repo2ai System") {
-    Container(cli, "CLI Module", "Python argparse", "Kommandozeilen-Interface und Parameter-Parsing inkl. AI-Chat Optionen")
-    Container(core, "Core Module", "Python stdlib", "Repository-Scanning, Filterung und Markdown-Generierung")
-    Container(output, "Output Module", "Python + pyperclip", "Ausgabe-Handling für File/Clipboard/Stdout")
-    Container(browser, "Browser Module", "Python webbrowser", "AI-Chat Integration und Browser-Automation")
+    Container(cli, "CLI Module", "Python argparse", "Entry point, argument parsing, and orchestration")
+    Container(core, "Core Module", "Python stdlib", "Repository scanning, file processing, and markdown generation")
+    Container(scope, "Scope Module", "Python stdlib", "Scope filtering (recent commits, patterns)")
+    Container(pr, "PR Module", "Python stdlib", "PR review logic and diff generation")
+    Container(output, "Output Module", "Python + pyperclip", "Output handling for File/Clipboard/Stdout")
+    Container(browser, "Browser Module", "Python webbrowser", "AI chat integration")
 }
 
 System_Ext(gitRepo, "Git Repository", "Lokales Git-Repository")
@@ -22,10 +24,13 @@ System_Ext(aiServices, "AI Services", "ChatGPT, Claude, Gemini")
 Rel(developer, cli, "Führt Kommandos aus", "CLI")
 
 ' Internal component relationships
-Rel(cli, core, "Übergibt Parameter und startet Verarbeitung", "Function call")
-Rel(core, output, "Übergibt generierten Markdown", "Function call")
-Rel(cli, browser, "Startet AI-Chat Integration", "Function call")
-Rel(browser, output, "Triggert Clipboard-Copy", "Function call")
+Rel(cli, core, "Starts scan and generation", "Function call")
+Rel(cli, scope, "Builds scope configuration", "Function call")
+Rel(cli, pr, "Handles PR review mode", "Function call")
+Rel(core, output, "Delivers generated Markdown", "Function call")
+Rel(pr, output, "Delivers PR Markdown", "Function call")
+Rel(cli, browser, "Triggers AI chat integration", "Function call")
+Rel(browser, output, "Ensures clipboard copy", "Function call")
 
 ' External system interactions
 Rel(core, gitRepo, "Liest Repository-Struktur", "subprocess git + os.walk")
