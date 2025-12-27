@@ -11,9 +11,6 @@ endif
 .RECIPEPREFIX = >
 .DEFAULT_GOAL := help
 
-.PHONY: help setup install build clean distclean format format-check lint test test-cov \
-        test-install run run-help demo docs validate check ci all \
-        install-system uninstall-system
 
 # =============================================================================
 # GLOBAL CONTRACTS
@@ -135,7 +132,32 @@ check:  ## Canonical quality gate (format-check + lint + test)
 
 ci: check  ## Alias for CI systems
 
+# =============================================================================
+# RELEASE & VERSIONING
+# =============================================================================
+
+version:  ## Show current project version
+> @$(POETRY) version -s
+
+release: check  ## Full release: bump, commit, tag, and push (e.g., make release PART=patch)
+> @if [ -z "$(PART)" ]; then \
+> 	echo "Error: PART is not set. Use 'make release PART=patch|minor|major'"; \
+> 	exit 1; \
+> fi
+> @NEW_VERSION=$($(POETRY) version $(PART) -s); \
+> 	echo "Bumping version to $$NEW_VERSION..."; \
+> 	git add pyproject.toml; \
+> 	git commit -m "chore: bump version to $$NEW_VERSION"; \
+> 	git tag -a "v$$NEW_VERSION" -m "Release v$$NEW_VERSION"; \
+> 	git push origin main; \
+> 	git push origin "v$$NEW_VERSION"; \
+> 	echo "✓ Version $$NEW_VERSION released and pushed."
+
 all:  ## Full pipeline (check + docs + build)
 > make check
 > make docs
 > make build
+
+.PHONY: help setup install build clean distclean format format-check lint test test-cov \
+        test-install run run-help demo docs validate check ci all \
+        install-system uninstall-system version release
