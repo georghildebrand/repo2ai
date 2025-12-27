@@ -104,7 +104,7 @@ jobs:
       - name: Install PlantUML
         run: |
           wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-          echo 'java -jar plantuml.jar "$@"' > plantuml
+          echo 'java -jar /usr/local/bin/plantuml.jar "$@"' > plantuml
           chmod +x plantuml
           sudo mv plantuml /usr/local/bin/
           sudo mv plantuml.jar /usr/local/bin/
@@ -112,7 +112,7 @@ jobs:
       - name: Render architecture diagrams
         run: |
           mkdir -p docs/images
-          plantuml -tpng docs/architecture/c4/*.puml -o ../../../docs/images/
+          plantuml -tpng docs/architecture/c4/*.puml -o docs/images/
 
       - name: Get version from tag
         id: get_version
