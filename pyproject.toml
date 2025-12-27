@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "repo2ai"
-version = "0.2.2"
+version = "0.2.3"
 description = "Export Git repository contents to structured Markdown with AI chat integration"
 authors = ["Georg Hildebrand <your-email@example.com>"]  # Add email
 readme = "README.md"
