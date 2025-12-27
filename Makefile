@@ -46,6 +46,7 @@ install:  ## Install dependencies
 # =============================================================================
 
 build:  ## Build wheel and sdist
+> rm -rf dist/
 > $(POETRY) build
 
 clean:  ## Remove build artifacts and caches
@@ -113,7 +114,7 @@ demo:  ## Generate demo output
 # =============================================================================
 
 install-system: build  ## Install built wheel into user site-packages (dev-only)
-> $(PYTHON_SYSTEM) -m pip install --user dist/*.whl --force-reinstall
+> $(PYTHON_SYSTEM) -m pip install --user dist/*.whl --force-reinstall --break-system-packages
 
 uninstall-system:  ## Remove system installation
 > $(PYTHON_SYSTEM) -m pip uninstall -y repo2ai || true
