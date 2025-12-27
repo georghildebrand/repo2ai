@@ -82,7 +82,7 @@ test:  ## Run tests (Poetry environment)
 
 test-cov:  ## Run tests with coverage
 > $(POETRY) run pytest tests/ -v \
-> > --cov=src/repo2ai --cov-report=html --cov-report=term-missing
+>   --cov=src/repo2ai --cov-report=html --cov-report=term-missing
 
 test-install:  ## Test wheel install in isolated virtualenv
 > $(POETRY) build
