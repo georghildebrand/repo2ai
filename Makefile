@@ -144,7 +144,7 @@ release: check  ## Full release: bump, commit, tag, and push (e.g., make release
 > 	echo "Error: PART is not set. Use 'make release PART=patch|minor|major'"; \
 > 	exit 1; \
 > fi
-> @NEW_VERSION=$($(POETRY) version $(PART) -s); \
+> @NEW_VERSION=$$($(POETRY) version $(PART) -s); \
 > 	echo "Bumping version to $$NEW_VERSION..."; \
 > 	git add pyproject.toml; \
 > 	git commit -m "chore: bump version to $$NEW_VERSION"; \
