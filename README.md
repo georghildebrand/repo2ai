@@ -112,6 +112,28 @@ repo2ai . --recent 1 --include "src/**/*.py"
 repo2ai . --include "**/*.py" --exclude "**/test_*.py"
 ```
 
+### Query-Aware Export (Ranked, Budgeted)
+
+A full export can be too large for a model to read in one go. `--query` ranks the
+repository against your question and packs only the most relevant parts into a
+token budget, with a manifest listing every file so the model knows what was
+left out.
+
+```bash
+# Export only what is relevant to one question, within 12k tokens
+repo2ai . --query "How does gitignore parsing work?" --budget 12000
+
+# Wider import-graph expansion around the ranked hits
+repo2ai . -q "where are prices rounded?" --budget 25000 --hops 2
+
+# Keep lock files (excluded by default in query mode)
+repo2ai . -q "dependency pinning" --locks
+```
+
+Ranking is lexical (BM25 over identifier sub-words) and runs offline with no API
+key. Lock files are excluded by default in this mode because they are roughly a
+third of a typical export and never answer a question.
+
 ### Advanced Filtering
 
 ```bash
@@ -145,6 +167,10 @@ Run `repo2ai --help` for complete options. Key flags:
 | `--uncommitted` | Only uncommitted changes |
 | `--include PATTERN` | Only files matching glob pattern |
 | `--pr-review [TARGET]` | Generate PR review context (diff + changed files) |
+| `--query, -q TEXT` | Query-aware export: rank content against TEXT |
+| `--budget N` | Token ceiling for query mode (default: 30000) |
+| `--hops N` | Import-graph expansion hops in query mode (default: 1) |
+| `--locks` | Keep lock files in query mode (excluded by default) |
 | `-v, --verbose` | Show detailed file lists |
 
 ## Contributing

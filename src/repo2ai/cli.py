@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from .core import scan_repository, generate_markdown
+from .smart import LOCK_FILE_PATTERNS, rank_and_pack, generate_smart_markdown
 from .output import handle_output
 from .browser import open_ai_chat
 from .scope import ScopeConfig
@@ -135,6 +136,33 @@ Pattern examples:
         const="auto",
         metavar="TARGET",
         help="Generate PR review context (diff + changed files). TARGET defaults to main or upstream.",
+    )
+
+    smart_group = parser.add_argument_group("smart search options")
+    smart_group.add_argument(
+        "--query",
+        "-q",
+        metavar="TEXT",
+        help="Query-aware export: rank content against TEXT and pack it into --budget",
+    )
+    smart_group.add_argument(
+        "--budget",
+        type=int,
+        default=30000,
+        metavar="N",
+        help="Token ceiling for --query mode (default: 30000)",
+    )
+    smart_group.add_argument(
+        "--hops",
+        type=int,
+        default=1,
+        metavar="N",
+        help="Import-graph expansion hops around ranked hits in --query mode (default: 1)",
+    )
+    smart_group.add_argument(
+        "--locks",
+        action="store_true",
+        help="Keep lock files in --query mode (excluded by default; they are ~1/3 of an export)",
     )
 
     # Debugging options
@@ -308,6 +336,10 @@ def main() -> None:
                     print(f"  Include: {pattern}", file=sys.stderr)
             print("=======================", file=sys.stderr)
 
+        # Lock files are a third of a typical export and never answer a question
+        if args.query and not args.locks:
+            ignore_patterns = list(ignore_patterns or []) + list(LOCK_FILE_PATTERNS)
+
         # Scan repository
         print("Scanning repository...", file=sys.stderr)
         scan_result = scan_repository(
@@ -331,8 +363,18 @@ def main() -> None:
             print("===========================", file=sys.stderr)
 
         # Generate markdown
-        print("Generating markdown...", file=sys.stderr)
-        markdown_content = generate_markdown(scan_result)
+        if args.query:
+            print(
+                f"Ranking {len(scan_result.files)} files against query...",
+                file=sys.stderr,
+            )
+            smart_result = rank_and_pack(
+                scan_result, args.query, args.budget, args.hops
+            )
+            markdown_content = generate_smart_markdown(smart_result)
+        else:
+            print("Generating markdown...", file=sys.stderr)
+            markdown_content = generate_markdown(scan_result)
 
         # Handle output
         handle_output(

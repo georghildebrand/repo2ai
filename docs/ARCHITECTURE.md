@@ -21,6 +21,7 @@ repo2ai follows a clean, modular architecture with clear separation of concerns.
 src/repo2ai/
 ├── cli.py      # Entry point, argument parsing, orchestration
 ├── core.py     # Repository scanning, filtering, markdown generation
+├── smart.py    # Query-aware export (BM25 ranking, import expansion, budget packing)
 ├── scope.py    # Scope filtering (recent commits, uncommitted, glob patterns)
 ├── pr.py       # PR review (branch detection, diff generation, context)
 ├── output.py   # File/clipboard/stdout output handling
