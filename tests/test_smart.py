@@ -8,9 +8,11 @@ from repo2ai.smart import (
     BM25,
     classify_role,
     estimate_tokens,
+    format_query_diagnostics,
     generate_smart_markdown,
     rank_and_pack,
     split_identifier,
+    stem,
     tokenize_query,
 )
 
@@ -50,8 +52,67 @@ def test_split_identifier_splits_snake_and_camel():
 
 def test_tokenize_query_drops_stopwords():
     terms = tokenize_query("How does the gitignore parsing work")
-    assert "gitignore" in terms
+    assert stem("gitignore") in terms
     assert "the" not in terms
+    assert "how" not in terms
+
+
+def test_stem_matches_query_wording_to_code_wording():
+    # The pairs that keyword-only matching used to miss.
+    assert stem("parsing") == stem("parse")
+    assert stem("prices") == stem("price")
+    assert stem("rounded") == stem("round") == stem("rounding")
+    assert stem("queries") == stem("query")
+    assert stem("settings") == stem("setting")
+
+
+def test_stem_leaves_non_plural_s_endings_alone():
+    for word in ("class", "status", "basis", "process", "pass"):
+        assert stem(word) == word
+
+
+def test_stem_never_strips_a_token_away():
+    # stem() is applied exactly once per token (in tokenize), so it need not be
+    # idempotent -- stem("pars") is "par". It must never return an empty or
+    # one-character token, which would match almost everything.
+    for word in (
+        "parsing",
+        "prices",
+        "classes",
+        "settings",
+        "gitignore",
+        "ies",
+        "sses",
+        "eed",
+    ):
+        assert len(stem(word)) >= 2
+
+
+def test_query_diagnostics_report_terms_and_ranked_files(tmp_path):
+    _write(
+        tmp_path, "pricing.py", "def round_price(value):\n    return round(value, 2)\n"
+    )
+    _write(tmp_path, "other.py", "def unrelated():\n    return 1\n")
+    scan = scan_repository(repo_path=tmp_path)
+    result = rank_and_pack(scan, "where are prices rounded?", budget=5000)
+    report = format_query_diagnostics(result)
+
+    assert stem("prices") in report
+    assert "pricing.py" in report
+    # The stopwords never become search terms.
+    assert "where" not in report.replace(result.query, "")
+
+
+def test_query_diagnostics_name_terms_that_match_nothing(tmp_path):
+    _write(
+        tmp_path, "pricing.py", "def round_price(value):\n    return round(value, 2)\n"
+    )
+    scan = scan_repository(repo_path=tmp_path)
+    result = rank_and_pack(scan, "kubernetes ingress", budget=5000)
+    report = format_query_diagnostics(result)
+
+    assert "No match in this repo" in report
+    assert stem("kubernetes") in report
 
 
 def test_estimate_tokens_is_never_zero():

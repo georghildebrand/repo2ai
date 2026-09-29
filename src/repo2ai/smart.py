@@ -1,13 +1,14 @@
 """
 Smart search export: query-aware, budget-aware repository export.
 
-PROTOTYPE — not wired into cli.py yet. Run standalone:
+Reached through `repo2ai <path> --query ...`, or standalone:
 
     python -m repo2ai.smart <path> --query "how is X done" --budget 30000
 
 Instead of dumping the whole repository, this module ranks code CHUNKS
 (Python: top-level functions/classes via ast; other files: line blocks)
-against a natural-language query using BM25 over identifier sub-words,
+against a query using BM25 over stemmed identifier sub-words (a question
+phrase works, but only its content words are searched — see tokenize()),
 expands the seed hits along the Python import graph (callers/callees come
 along), then greedily packs the highest-scoring chunks into a hard token
 budget. Everything that did not fit is still represented: a manifest table
@@ -76,8 +77,47 @@ def split_identifier(ident: str) -> List[str]:
     return parts
 
 
+def stem(token: str) -> str:
+    """Conservative suffix stripper so query words match code spellings.
+
+    Without this, a query word never matches a near-identical identifier:
+    "parsing" misses parse(), "prices" misses price, "rounded" misses round().
+    Applied to both sides (query and code), so only agreement matters, not
+    whether the stem is a real English word. Deliberately lighter than Porter:
+    identifiers are not prose, and over-stemming merges unrelated symbols.
+    """
+    if len(token) < 4:
+        return token
+
+    # Plurals. "ss"/"us"/"is" endings are not plural markers (class, status, basis).
+    if token.endswith("ies") and len(token) >= 5:
+        token = token[:-3] + "y"
+    elif token.endswith("sses"):
+        token = token[:-2]
+    elif token.endswith(("ss", "us", "is")):
+        pass
+    elif token.endswith("s"):
+        token = token[:-1]
+
+    # Verb suffixes, only when enough stem survives.
+    if token.endswith("ing") and len(token) - 3 >= 3:
+        token = token[:-3]
+    elif token.endswith("ed") and len(token) - 2 >= 3:
+        token = token[:-2]
+
+    # settings -> setting -> sett -> set; running -> runn -> run
+    if len(token) >= 4 and token[-1] == token[-2] and token[-1] not in "aeiouls":
+        token = token[:-1]
+
+    # Final "e" so parse/parsing and price/pricing land on the same stem.
+    if len(token) >= 4 and token.endswith("e"):
+        token = token[:-1]
+
+    return token
+
+
 def tokenize(text: str) -> List[str]:
-    """Tokenize text/code into lowercase sub-word tokens for ranking."""
+    """Tokenize text/code into lowercase stemmed sub-word tokens for ranking."""
     tokens: List[str] = []
     for ident in _IDENT_RE.findall(text):
         lower = ident.lower()
@@ -86,7 +126,8 @@ def tokenize(text: str) -> List[str]:
         # Keep the whole identifier too so exact matches rank higher
         if len(subs) > 1:
             tokens.append(lower)
-    return [t for t in tokens if len(t) > 1 and t not in _STOPWORDS]
+    # Stopwords are listed unstemmed, so drop them before stemming.
+    return [stem(t) for t in tokens if len(t) > 1 and t not in _STOPWORDS]
 
 
 def tokenize_query(query: str) -> List[str]:
@@ -218,6 +259,7 @@ class BM25:
         df: Counter = Counter()
         for freqs in self.doc_freqs:
             df.update(freqs.keys())
+        self.df = df  # term -> number of chunks containing it (used for diagnostics)
         self.idf = {
             term: math.log(1 + (self.n_docs - n + 0.5) / (n + 0.5))
             for term, n in df.items()
@@ -253,7 +295,8 @@ def _symbol_boost(chunk: Chunk, query_terms: Set[str]) -> float:
     """Boost chunks whose symbol names match query terms."""
     boost = 0.0
     for sym in chunk.symbols:
-        subs = set(split_identifier(sym)) | {sym.lower()}
+        # Stemmed, because query_terms are stemmed too (see tokenize()).
+        subs = {stem(s) for s in split_identifier(sym)} | {stem(sym.lower())}
         hits = len(subs & query_terms)
         if hits:
             boost += 2.0 * hits
@@ -425,6 +468,10 @@ class SmartResult:
     ext_imports: Dict[str, List[str]]  # rel_path -> third-party imports
     outline_budget: int  # token cap for the outline section
     scan: ScanResult
+    query_terms: List[str] = field(default_factory=list)  # stemmed, stopwords removed
+    term_chunk_hits: Dict[str, int] = field(
+        default_factory=dict
+    )  # term -> chunks containing it
 
 
 def _path_prior(rel_path: str) -> float:
@@ -563,7 +610,51 @@ def rank_and_pack(
         ext_imports=ext_imports,
         outline_budget=int(budget * outline_ratio),
         scan=scan,
+        query_terms=query_terms,
+        term_chunk_hits={t: bm25.df.get(t, 0) for t in query_term_set},
     )
+
+
+def format_query_diagnostics(result: SmartResult, top_n: int = 10) -> str:
+    """Human-readable report of what the query actually searched for.
+
+    Ranking is keyword-based, so a query can silently return the wrong files
+    when its words do not occur in the code. Printing the surviving terms, the
+    terms that matched nothing, and the top-ranked files makes that visible.
+    """
+    lines = ["=== Query diagnostics ===", f'Query: "{result.query}"']
+
+    seen: Set[str] = set()
+    ordered: List[str] = []
+    for term in result.query_terms:
+        if term not in seen:
+            seen.add(term)
+            ordered.append(term)
+    if ordered:
+        lines.append("Search terms (stemmed): " + ", ".join(ordered))
+    else:
+        lines.append("Search terms (stemmed): none — every word was a stopword")
+
+    unmatched = [t for t in ordered if not result.term_chunk_hits.get(t, 0)]
+    if unmatched:
+        lines.append(
+            "No match in this repo: "
+            + ", ".join(unmatched)
+            + "  (try the spelling used in the code)"
+        )
+
+    ranked = sorted(result.file_scores.items(), key=lambda kv: kv[1], reverse=True)
+    ranked = [(p, s) for p, s in ranked if s > 0][:top_n]
+    if ranked:
+        lines.append(f"Top {len(ranked)} files by score:")
+        for path, score in ranked:
+            status = result.file_status.get(path, "omitted")
+            lines.append(f"  {score:7.2f}  {status:<8} {path}")
+    else:
+        lines.append("No file scored above zero — the export is a fallback selection.")
+
+    lines.append("=========================")
+    return "\n".join(lines)
 
 
 def _python_outline(content: str) -> List[str]:

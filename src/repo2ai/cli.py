@@ -8,7 +8,12 @@ from pathlib import Path
 from typing import List, Optional
 
 from .core import scan_repository, generate_markdown
-from .smart import LOCK_FILE_PATTERNS, rank_and_pack, generate_smart_markdown
+from .smart import (
+    LOCK_FILE_PATTERNS,
+    format_query_diagnostics,
+    rank_and_pack,
+    generate_smart_markdown,
+)
 from .output import handle_output
 from .browser import open_ai_chat
 from .scope import ScopeConfig
@@ -371,6 +376,7 @@ def main() -> None:
             smart_result = rank_and_pack(
                 scan_result, args.query, args.budget, args.hops
             )
+            print(format_query_diagnostics(smart_result), file=sys.stderr)
             markdown_content = generate_smart_markdown(smart_result)
         else:
             print("Generating markdown...", file=sys.stderr)
